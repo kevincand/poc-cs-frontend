@@ -1,0 +1,264 @@
+<div class="min-h-screen bg-slate-100">
+  <header
+    class="bg-white border-b border-slate-200 px-6 py-4"
+  >
+    <div
+      class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4"
+    >
+      <div>
+        <h1
+          class="text-2xl font-bold text-slate-800"
+        >
+          Dashboard de Análises
+        </h1>
+
+        <p class="text-slate-500">
+          Monitoramento operacional
+        </p>
+      </div>
+
+      <div class="flex gap-3">
+        <div
+          class="bg-yellow-100 text-yellow-700 px-4 py-2 rounded-xl text-sm font-medium"
+        >
+          Pendente:
+          {{ pendingCount() }}
+        </div>
+
+        <div
+          class="bg-blue-100 text-blue-700 px-4 py-2 rounded-xl text-sm font-medium"
+        >
+          Analisado:
+          {{ analyzedCount() }}
+        </div>
+
+        <div
+          class="bg-green-100 text-green-700 px-4 py-2 rounded-xl text-sm font-medium"
+        >
+          Conferido:
+          {{ checkedCount() }}
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="p-4 lg:p-6">
+    @if (selectedGroup()) {
+    <div
+      class="mb-4 bg-blue-50 border border-blue-200 rounded-xl p-3 flex items-center justify-between"
+    >
+      <span class="text-sm text-blue-700">
+        Filtrando:
+        {{ selectedGroup() }}
+      </span>
+
+      <button
+        (click)="clearFilter()"
+        class="text-sm text-blue-600 hover:text-blue-800"
+      >
+        Limpar
+      </button>
+    </div>
+    }
+
+    @if (loading()) {
+    <div class="text-center py-20">
+      <p class="text-slate-500">
+        Carregando análises...
+      </p>
+    </div>
+    } @else {
+
+    <!-- MOBILE -->
+
+    <div class="lg:hidden space-y-4">
+      @for (analysis of filteredAnalyses(); track
+      analysis.uuid) {
+
+      <div
+        class="bg-white rounded-2xl border p-4 shadow-sm relative"
+        [class.border-red-400]="analysis.hasAlert"
+        [class.bg-red-50]="analysis.hasAlert"
+        [class.border-blue-400]="analysis.status === 'ANALISADO'"
+        [class.border-green-400]="analysis.status === 'CONFERIDO'"
+      >
+        <div class="mb-3">
+          <button
+            (click)="selectGroup(analysis.sampleGroup)"
+            class="font-semibold text-slate-800 text-left"
+          >
+            {{ analysis.nome }}
+          </button>
+        </div>
+
+        <div
+          class="grid grid-cols-2 gap-3 text-sm"
+        >
+          <div>
+            <p class="text-slate-400">
+              Proteína
+            </p>
+
+            <p class="font-semibold">
+              {{ analysis.proteina | number :
+              '1.2-2' }}%
+            </p>
+          </div>
+
+          <div>
+            <p class="text-slate-400">
+              Umidade
+            </p>
+
+            <p class="font-semibold">
+              {{ analysis.umidade | number :
+              '1.2-2' }}%
+            </p>
+          </div>
+
+          <div>
+            <p class="text-slate-400">
+              Operador
+            </p>
+
+            <p>
+              {{ analysis.usuario }}
+            </p>
+          </div>
+
+          <div>
+            <p class="text-slate-400">
+              Dispositivo
+            </p>
+
+            <p>
+              {{ analysis.dispositivo }}
+            </p>
+          </div>
+        </div>
+
+        @if (auth.isAdmin()) {
+        <div class="flex gap-2 mt-4">
+          <button
+            (click)="updateStatus(analysis, 'ANALISADO')"
+            class="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm"
+          >
+            Analisado
+          </button>
+
+          <button
+            (click)="updateStatus(analysis, 'CONFERIDO')"
+            class="flex-1 bg-green-600 text-white rounded-lg py-2 text-sm"
+          >
+            Conferido
+          </button>
+        </div>
+        }
+      </div>
+
+      }
+    </div>
+
+    <!-- DESKTOP -->
+
+    <div
+      class="hidden lg:block bg-white rounded-2xl overflow-hidden shadow-sm"
+    >
+      <table class="w-full">
+        <thead class="bg-slate-100">
+          <tr>
+            <th class="text-left p-4">
+              Nome
+            </th>
+
+            <th class="text-left p-4">
+              Proteína
+            </th>
+
+            <th class="text-left p-4">
+              Umidade
+            </th>
+
+            <th class="text-left p-4">
+              Operador
+            </th>
+
+            <th class="text-left p-4">
+              Status
+            </th>
+
+            <th class="text-left p-4">
+              Ações
+            </th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (analysis of filteredAnalyses();
+          track analysis.uuid) {
+
+          <tr
+            class="border-t"
+            [class.bg-red-50]="analysis.hasAlert"
+            [class.border-red-300]="analysis.hasAlert"
+            [class.bg-blue-50]="analysis.status === 'ANALISADO'"
+            [class.bg-green-50]="analysis.status === 'CONFERIDO'"
+          >
+            <td class="p-4">
+              <button
+                (click)="selectGroup(analysis.sampleGroup)"
+                class="font-medium text-slate-800"
+              >
+                {{ analysis.nome }}
+              </button>
+            </td>
+
+            <td class="p-4">
+              {{ analysis.proteina | number :
+              '1.2-2' }}%
+            </td>
+
+            <td class="p-4">
+              {{ analysis.umidade | number :
+              '1.2-2' }}%
+            </td>
+
+            <td class="p-4">
+              {{ analysis.usuario }}
+            </td>
+
+            <td class="p-4">
+              {{ analysis.status }}
+            </td>
+
+            <td class="p-4">
+              @if (auth.isAdmin()) {
+
+              <div class="flex gap-2">
+                <button
+                  (click)="updateStatus(analysis, 'ANALISADO')"
+                  class="bg-blue-600 text-white px-3 py-1 rounded-lg text-sm"
+                >
+                  Analisar
+                </button>
+
+                <button
+                  (click)="updateStatus(analysis, 'CONFERIDO')"
+                  class="bg-green-600 text-white px-3 py-1 rounded-lg text-sm"
+                >
+                  Conferir
+                </button>
+              </div>
+
+              }
+            </td>
+          </tr>
+
+          }
+        </tbody>
+      </table>
+    </div>
+
+    }
+  </main>
+</div>
