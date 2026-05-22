@@ -5,6 +5,8 @@ export interface Analysis {
 
   sampleGroup: string;
 
+   criadoEm?: string;
+
   grao: string;
 
   usuario: string;
@@ -28,4 +30,6 @@ export interface Analysis {
   status: 'PENDENTE' | 'ANALISADO' | 'CONFERIDO';
 
   hasAlert: boolean;
+
+  invalidFields?: string[];
 }

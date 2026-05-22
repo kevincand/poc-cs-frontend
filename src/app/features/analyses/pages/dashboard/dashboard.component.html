@@ -1,264 +1,502 @@
 <div class="min-h-screen bg-slate-100">
-  <header
-    class="bg-white border-b border-slate-200 px-6 py-4"
-  >
-    <div
-      class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4"
-    >
-      <div>
-        <h1
-          class="text-2xl font-bold text-slate-800"
-        >
-          Dashboard de Análises
-        </h1>
+    <header class="bg-white border-b border-slate-200 px-6 py-4">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-800">
+                    Dashboard de Análises
+                </h1>
 
-        <p class="text-slate-500">
-          Monitoramento operacional
-        </p>
-      </div>
+                <p class="text-slate-500">
+                    Monitoramento operacional
+                </p>
+            </div>
 
-      <div class="flex gap-3">
-        <div
-          class="bg-yellow-100 text-yellow-700 px-4 py-2 rounded-xl text-sm font-medium"
-        >
-          Pendente:
-          {{ pendingCount() }}
+            <div class="flex items-center gap-3 flex-wrap">
+                <div class="bg-yellow-100 text-yellow-700 px-4 py-2 rounded-xl text-sm font-medium">
+                    Pendente:
+                    {{ pendingCount() }}
+                </div>
+
+                <div class="bg-blue-100 text-blue-700 px-4 py-2 rounded-xl text-sm font-medium">
+                    Analisado:
+                    {{ analyzedCount() }}
+                </div>
+
+                <div class="bg-green-100 text-green-700 px-4 py-2 rounded-xl text-sm font-medium">
+                    Conferido:
+                    {{ checkedCount() }}
+                </div>
+                <button (click)="logout()"
+                    class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-xl text-sm transition-colors">
+                    Sair
+                </button>
+
+            </div>
+        </div>
+    </header>
+
+    <main class="p-4 lg:p-6">
+        @if (selectedGroup()) {
+
+        <div class="mb-4 bg-blue-50 border border-blue-200 rounded-xl p-3 flex items-center justify-between">
+            <span class="text-sm text-blue-700">
+                Filtrando:
+                {{ selectedGroup() }}
+            </span>
+
+            <button (click)="clearFilter()" class="text-sm text-blue-600 hover:text-blue-800">
+                Limpar
+            </button>
         </div>
 
-        <div
-          class="bg-blue-100 text-blue-700 px-4 py-2 rounded-xl text-sm font-medium"
-        >
-          Analisado:
-          {{ analyzedCount() }}
+        }
+
+        <!-- FILTROS -->
+
+        <div class="bg-white rounded-2xl shadow-sm p-4 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <input type="text" placeholder="Buscar amostra..." class="border rounded-xl px-4 py-2"
+                    [ngModel]="query()" (ngModelChange)="query.set($event)" />
+                <!-- <input type="date" class="border rounded-xl px-4 py-2" [ngModel]="startDate()"
+                    (ngModelChange)="startDate.set($event)" />
+
+                <input type="date" class="border rounded-xl px-4 py-2" [ngModel]="endDate()"
+                    (ngModelChange)="endDate.set($event)" /> -->
+                <select class="border rounded-xl px-4 py-2" [ngModel]="selectedEmpresa()"
+                    (ngModelChange)="selectedEmpresa.set($event)">
+                    <option value="">
+                        Todas empresas
+                    </option>
+
+                    @for (empresa of
+                    filterData()?.empresaSet; track
+                    empresa.uuid) {
+
+                    <option [value]="empresa.uuid">
+                        {{ empresa.nomeFantasia }}
+                    </option>
+
+                    }
+                </select>
+
+                <select class="border rounded-xl px-4 py-2" [ngModel]="selectedUsuario()"
+                    (ngModelChange)="selectedUsuario.set($event)">
+                    <option value="">
+                        Todos operadores
+                    </option>
+
+                    @for (usuario of
+                    filterData()?.usuarioSet; track
+                    usuario.uuid) {
+
+                    <option [value]="usuario.uuid">
+                        {{ usuario.nome }}
+                    </option>
+
+                    }
+                </select>
+
+                <select class="border rounded-xl px-4 py-2" [ngModel]="selectedGrao()"
+                    (ngModelChange)="selectedGrao.set($event)">
+                    <option value="">
+                        Todos grãos
+                    </option>
+
+                    @for (grao of
+                    filterData()?.graoSet; track
+                    grao) {
+
+                    <option [value]="grao">
+                        {{ grao }}
+                    </option>
+
+                    }
+                </select>
+
+                <select class="border rounded-xl px-4 py-2" [ngModel]="selectedTipoNir()"
+                    (ngModelChange)="selectedTipoNir.set($event)">
+                    <option value="">
+                        Todos tipos
+                    </option>
+
+                    @for (tipo of
+                    filterData()?.tipoNirSet; track
+                    tipo) {
+
+                    <option [value]="tipo">
+                        {{ tipo }}
+                    </option>
+
+                    }
+                </select>
+
+                <select class="border rounded-xl px-4 py-2" [ngModel]="selectedDispositivo()"
+                    (ngModelChange)="selectedDispositivo.set($event)">
+                    <option value="">
+                        Todos dispositivos
+                    </option>
+
+                    @for (dispositivo of
+                    filterData()?.dispositivoNirSet;
+                    track dispositivo.id) {
+
+                    <option [value]="dispositivo.numSerie">
+                        {{ dispositivo.numSerie }}
+                    </option>
+
+                    }
+                </select>
+
+                <select class="border rounded-xl px-4 py-2" [ngModel]="selectedStatus()"
+                    (ngModelChange)="selectedStatus.set($event)">
+                    <option value="">
+                        Todos status
+                    </option>
+
+                    <option value="PENDENTE">
+                        Pendente
+                    </option>
+
+                    <option value="ANALISADO">
+                        Analisado
+                    </option>
+
+                    <option value="CONFERIDO">
+                        Conferido
+                    </option>
+                </select>
+
+                <button (click)="loadAnalyses()"
+                    class="bg-slate-900 hover:bg-slate-800 text-white rounded-xl px-4 py-2 transition-all">
+                    Buscar
+                </button>
+            </div>
         </div>
 
-        <div
-          class="bg-green-100 text-green-700 px-4 py-2 rounded-xl text-sm font-medium"
-        >
-          Conferido:
-          {{ checkedCount() }}
-        </div>
-      </div>
-    </div>
-  </header>
+        @if (loading()) {
 
-  <main class="p-4 lg:p-6">
-    @if (selectedGroup()) {
-    <div
-      class="mb-4 bg-blue-50 border border-blue-200 rounded-xl p-3 flex items-center justify-between"
-    >
-      <span class="text-sm text-blue-700">
-        Filtrando:
-        {{ selectedGroup() }}
-      </span>
-
-      <button
-        (click)="clearFilter()"
-        class="text-sm text-blue-600 hover:text-blue-800"
-      >
-        Limpar
-      </button>
-    </div>
-    }
-
-    @if (loading()) {
-    <div class="text-center py-20">
-      <p class="text-slate-500">
-        Carregando análises...
-      </p>
-    </div>
-    } @else {
-
-    <!-- MOBILE -->
-
-    <div class="lg:hidden space-y-4">
-      @for (analysis of filteredAnalyses(); track
-      analysis.uuid) {
-
-      <div
-        class="bg-white rounded-2xl border p-4 shadow-sm relative"
-        [class.border-red-400]="analysis.hasAlert"
-        [class.bg-red-50]="analysis.hasAlert"
-        [class.border-blue-400]="analysis.status === 'ANALISADO'"
-        [class.border-green-400]="analysis.status === 'CONFERIDO'"
-      >
-        <div class="mb-3">
-          <button
-            (click)="selectGroup(analysis.sampleGroup)"
-            class="font-semibold text-slate-800 text-left"
-          >
-            {{ analysis.nome }}
-          </button>
+        <div class="text-center py-20">
+            <p class="text-slate-500">
+                Carregando análises...
+            </p>
         </div>
 
-        <div
-          class="grid grid-cols-2 gap-3 text-sm"
-        >
-          <div>
-            <p class="text-slate-400">
-              Proteína
-            </p>
+        } @else {
 
-            <p class="font-semibold">
-              {{ analysis.proteina | number :
-              '1.2-2' }}%
-            </p>
-          </div>
+        <!-- MOBILE -->
 
-          <div>
-            <p class="text-slate-400">
-              Umidade
-            </p>
+        <div class="lg:hidden space-y-4">
+            @for (analysis of filteredAnalyses(); track analysis.uuid) {
 
-            <p class="font-semibold">
-              {{ analysis.umidade | number :
-              '1.2-2' }}%
-            </p>
-          </div>
+            <div class="rounded-2xl border p-4 shadow-sm relative flex-col" [ngClass]="getRowClasses(analysis)">
+                <div class="flex items-start justify-between gap-3 mb-4">
+                    <button (click)="selectGroup(analysis.sampleGroup)"
+                        class="font-semibold text-slate-800 text-left px-3 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 transition">
+                        {{ analysis.nome }}
+                    </button>
 
-          <div>
-            <p class="text-slate-400">
-              Operador
-            </p>
+                    <div>
+                        <span class="text-xs px-2 py-1 rounded-full bg-white border">
+                            {{ analysis.status }}
+                        </span>
+                        <div class="text-center mt-1">
+                            <p class="text-[11px] text-slate-400">
+                                {{ analysis.dataHora | date:'dd/MM/yyyy HH:mm' }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
 
-            <p>
-              {{ analysis.usuario }}
-            </p>
-          </div>
 
-          <div>
-            <p class="text-slate-400">
-              Dispositivo
-            </p>
+                <div class="grid grid-cols-2 gap-3 text-sm">
 
-            <p>
-              {{ analysis.dispositivo }}
-            </p>
-          </div>
+                    <div>
+                        <p class="text-slate-400">
+                            Proteína
+                        </p>
+
+                        <p class="rounded-md px-2 py-1 inline-block" [ngClass]="getFieldClasses(analysis, 'proteina')">
+                            {{ analysis.proteina | number:'1.2-2' }}%
+                        </p>
+                    </div>
+
+                    <div>
+                        <p class="text-slate-400">
+                            Umidade
+                        </p>
+
+                        <p class="rounded-md px-2 py-1 inline-block" [ngClass]="getFieldClasses(analysis, 'umidade')">
+                            {{ analysis.umidade | number:'1.2-2' }}%
+                        </p>
+                    </div>
+
+                    <div>
+                        <p class="text-slate-400">
+                            Óleo
+                        </p>
+
+                        <p class="rounded-md px-2 py-1 inline-block" [ngClass]="getFieldClasses(analysis, 'oleo')">
+                            {{ analysis.oleo | number:'1.2-2' }}%
+                        </p>
+                    </div>
+
+                    @if (analysis.grao === 'FARELO_SOJA') {
+
+                    <div>
+                        <p class="text-slate-400">
+                            Cinzas
+                        </p>
+
+                        <p class="rounded-md px-2 py-1 inline-block" [ngClass]="getFieldClasses(analysis, 'cinzas')">
+                            {{ analysis.cinzas | number:'1.2-2' }}%
+                        </p>
+                    </div>
+
+                    <div>
+                        <p class="text-slate-400">
+                            Fibra
+                        </p>
+
+                        <p class="rounded-md px-2 py-1 inline-block" [ngClass]="getFieldClasses(analysis, 'fibra')">
+                            {{ analysis.fibra | number:'1.2-2' }}%
+                        </p>
+                    </div>
+
+                    <div>
+                        <p class="text-slate-400">
+                            Densidade
+                        </p>
+
+                        <p class="rounded-md px-2 py-1 inline-block" [ngClass]="getFieldClasses(analysis, 'densidade')">
+                            {{ analysis.densidade | number:'1.2-2' }}
+                        </p>
+                    </div>
+
+                    }
+
+                    <div>
+                        <p class="text-slate-400">
+                            Operador
+                        </p>
+
+                        <p>
+                            {{ analysis.usuario }}
+                        </p>
+                    </div>
+
+                    <div>
+                        <p class="text-slate-400">
+                            Dispositivo
+                        </p>
+
+                        <p>
+                            {{ analysis.dispositivo }}
+                        </p>
+                    </div>
+                </div>
+
+                @if (auth.isAdmin()) {
+
+                <div class="flex gap-2 mt-4">
+                    <button (click)="updateStatus(analysis, 'ANALISADO')"
+                        class="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm">
+                        Analisado
+                    </button>
+
+                    <button (click)="updateStatus(analysis, 'CONFERIDO')"
+                        class="flex-1 bg-green-600 text-white rounded-lg py-2 text-sm">
+                        Conferido
+                    </button>
+                    <button (click)="copyRetestMessage(analysis)"
+                        class="w-9 h-9 rounded-lg border border-slate-200 flex items-center justify-center hover:bg-slate-100 transition">
+                        @if (copiedAnalysis() === analysis.uuid) {
+
+                        <lucide-icon [img]="Check" class="w-4 h-4 text-green-600"></lucide-icon>
+
+                        } @else {
+
+                        <lucide-icon [img]="Clipboard" class="w-4 h-4 text-slate-500"></lucide-icon>
+
+                        }
+                    </button>
+                </div>
+
+                }
+            </div>
+
+            }
+            <div class="flex items-center justify-center gap-4 mt-6">
+                <button (click)="previousPage()" class="px-4 py-2 rounded-xl border bg-white">
+                    Anterior
+                </button>
+
+                <span class="text-sm text-slate-600">
+                    Página {{ currentPage() + 1 }}
+                    de {{ totalPages() }}
+                </span>
+
+                <button (click)="nextPage()" class="px-4 py-2 rounded-xl border bg-white">
+                    Próxima
+                </button>
+            </div>
         </div>
 
-        @if (auth.isAdmin()) {
-        <div class="flex gap-2 mt-4">
-          <button
-            (click)="updateStatus(analysis, 'ANALISADO')"
-            class="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm"
-          >
-            Analisado
-          </button>
+        <div class="hidden lg:block bg-white rounded-2xl overflow-hidden shadow-sm max-h-[95vh] overflow-y-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-slate-100 sticky top-0 z-20 shadow-sm">
+                    <tr>
+                        <th class="text-left p-4">
+                            Nome
+                        </th>
 
-          <button
-            (click)="updateStatus(analysis, 'CONFERIDO')"
-            class="flex-1 bg-green-600 text-white rounded-lg py-2 text-sm"
-          >
-            Conferido
-          </button>
+                        <th class="text-left p-4">
+                            Prot.
+                        </th>
+
+                        <th class="text-left p-4">
+                            Umid.
+                        </th>
+
+                        <th class="text-left p-4">
+                            Óleo
+                        </th>
+
+                        <th class="text-left p-4">
+                            Cinzas
+                        </th>
+
+                        <th class="text-left p-4">
+                            Fibra
+                        </th>
+
+                        <th class="text-left p-4">
+                            Dens.
+                        </th>
+
+                        <th class="text-left p-4">
+                            Operador
+                        </th>
+
+                        <th class="text-center p-4">
+                            Status
+                        </th>
+
+                        <th class="text-left p-4">
+                            Ações
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @for (analysis of filteredAnalyses(); track analysis.uuid) {
+
+                    <tr class="border-t" [ngClass]="getRowClasses(analysis)">
+                        <td class="p-4">
+                            <button (click)="selectGroup(analysis.sampleGroup)"
+                                class="px-3 py-1 rounded-lg bg-white/70 hover:bg-white font-medium">
+                                {{ analysis.nome }}
+                            </button>
+                        </td>
+
+                        <td class="p-4">
+                            <span class="px-2 py-1 rounded-md" [ngClass]="getFieldClasses(analysis, 'proteina')">
+                                {{ analysis.proteina | number:'1.2-2' }}
+                            </span>
+                        </td>
+
+                        <td class="p-4">
+                            <span class="px-2 py-1 rounded-md" [ngClass]="getFieldClasses(analysis, 'umidade')">
+                                {{ analysis.umidade | number:'1.2-2' }}
+                            </span>
+                        </td>
+
+                        <td class="p-4">
+                            <span class="px-2 py-1 rounded-md" [ngClass]="getFieldClasses(analysis, 'oleo')">
+                                {{ analysis.oleo | number:'1.2-2' }}
+                            </span>
+                        </td>
+
+                        <td class="p-4">
+                            <span class="px-2 py-1 rounded-md" [ngClass]="getFieldClasses(analysis, 'cinzas')">
+                                {{ analysis.cinzas === 0 ? '-' : analysis.cinzas | number:'1.2-2' }}
+                            </span>
+                        </td>
+
+                        <td class="p-4">
+                            <span class="px-2 py-1 rounded-md" [ngClass]="getFieldClasses(analysis, 'fibra')">
+                                {{ analysis.fibra === 0 ? '-' : analysis.fibra | number:'1.2-2' }}
+                            </span>
+                        </td>
+
+                        <td class="p-4">
+                            <span class="px-2 py-1 rounded-md" [ngClass]="getFieldClasses(analysis, 'densidade')">
+                                {{ analysis.densidade === 0 ? '-' : analysis.densidade | number:'1.2-2' }}
+                            </span>
+                        </td>
+
+                        <td class="p-4">
+                            {{ analysis.usuario }}
+                        </td>
+
+                        <td class="p-4">
+                            <div class="flex flex-col items-center">
+                                <span class="px-2 py-1 rounded-full text-xs bg-white border">
+                                    {{ analysis.status }}
+                                </span>
+                                <span class="text-[11px] text-slate-400 mt-1 whitespace-nowrap">
+                                    {{ analysis.dataHora | date:'dd/MM/yyyy HH:mm' }}
+                                </span>
+                            </div>
+                        </td>
+
+                        <td class="p-4">
+                            @if (auth.isAdmin()) {
+
+                            <div class="flex gap-2">
+                                <button (click)="updateStatus(analysis, 'ANALISADO')"
+                                    class="bg-blue-600 text-white px-3 py-1 rounded-lg text-xs">
+                                    Analisar
+                                </button>
+
+                                <button (click)="updateStatus(analysis, 'CONFERIDO')"
+                                    class="bg-green-600 text-white px-3 py-1 rounded-lg text-xs">
+                                    Conferir
+                                </button>
+                                <button (click)="copyRetestMessage(analysis)"
+                                    class="w-9 h-9 rounded-lg border border-slate-200 flex items-center justify-center hover:bg-slate-100 transition">
+                                    @if (copiedAnalysis() === analysis.uuid) {
+
+                                    <lucide-icon [img]="Check" class="w-4 h-4 text-green-600" />
+
+                                    } @else {
+
+                                    <lucide-icon [img]="Clipboard" class="w-4 h-4 text-slate-500" />
+
+                                    }
+                                </button>
+                            </div>
+                            }
+                        </td>
+                    </tr>
+
+                    }
+                </tbody>
+            </table>
+            <div class="flex items-center justify-center gap-4 mt-6 w-screen">
+                <button (click)="previousPage()" class="px-4 py-2 rounded-xl border bg-white">
+                    Anterior
+                </button>
+
+                <span class="text-sm text-slate-600">
+                    Página {{ currentPage() + 1 }}
+                    de {{ totalPages() }}
+                </span>
+
+                <button (click)="nextPage()" class="px-4 py-2 rounded-xl border bg-white ">
+                    Próxima
+                </button>
+            </div>
         </div>
         }
-      </div>
-
-      }
-    </div>
-
-    <!-- DESKTOP -->
-
-    <div
-      class="hidden lg:block bg-white rounded-2xl overflow-hidden shadow-sm"
-    >
-      <table class="w-full">
-        <thead class="bg-slate-100">
-          <tr>
-            <th class="text-left p-4">
-              Nome
-            </th>
-
-            <th class="text-left p-4">
-              Proteína
-            </th>
-
-            <th class="text-left p-4">
-              Umidade
-            </th>
-
-            <th class="text-left p-4">
-              Operador
-            </th>
-
-            <th class="text-left p-4">
-              Status
-            </th>
-
-            <th class="text-left p-4">
-              Ações
-            </th>
-          </tr>
-        </thead>
-
-        <tbody>
-          @for (analysis of filteredAnalyses();
-          track analysis.uuid) {
-
-          <tr
-            class="border-t"
-            [class.bg-red-50]="analysis.hasAlert"
-            [class.border-red-300]="analysis.hasAlert"
-            [class.bg-blue-50]="analysis.status === 'ANALISADO'"
-            [class.bg-green-50]="analysis.status === 'CONFERIDO'"
-          >
-            <td class="p-4">
-              <button
-                (click)="selectGroup(analysis.sampleGroup)"
-                class="font-medium text-slate-800"
-              >
-                {{ analysis.nome }}
-              </button>
-            </td>
-
-            <td class="p-4">
-              {{ analysis.proteina | number :
-              '1.2-2' }}%
-            </td>
-
-            <td class="p-4">
-              {{ analysis.umidade | number :
-              '1.2-2' }}%
-            </td>
-
-            <td class="p-4">
-              {{ analysis.usuario }}
-            </td>
-
-            <td class="p-4">
-              {{ analysis.status }}
-            </td>
-
-            <td class="p-4">
-              @if (auth.isAdmin()) {
-
-              <div class="flex gap-2">
-                <button
-                  (click)="updateStatus(analysis, 'ANALISADO')"
-                  class="bg-blue-600 text-white px-3 py-1 rounded-lg text-sm"
-                >
-                  Analisar
-                </button>
-
-                <button
-                  (click)="updateStatus(analysis, 'CONFERIDO')"
-                  class="bg-green-600 text-white px-3 py-1 rounded-lg text-sm"
-                >
-                  Conferir
-                </button>
-              </div>
-
-              }
-            </td>
-          </tr>
-
-          }
-        </tbody>
-      </table>
-    </div>
-
-    }
-  </main>
+    </main>
 </div>

@@ -9,19 +9,36 @@ import { CommonModule } from '@angular/common';
 
 import { ApiService } from '@/app/core/services/api.service';
 
-import { Analysis } from '@/app/core/models/analysis.model';
+import { Analysis } from '@/app/core/models/analisys.model';
 
 import { AuthService } from '@/app/core/services/auth.service';
+
+import { FormsModule } from '@angular/forms';
+
+import { FilterData } from '@/app/core/models/filter-data.model';
+
+import {
+  validateAnalysis,
+} from '@/app/core/utils/analysis-validator';
+
+import { Router } from '@angular/router';
+
+import {
+  LucideAngularModule,
+  Clipboard,
+  Check,
+} from 'lucide-angular';
 
 @Component({
   selector: 'app-dashboard',
 
   standalone: true,
 
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule ],
 
   templateUrl: './dashboard.component.html',
 })
+
 export class DashboardComponent {
   api = inject(ApiService);
 
@@ -39,6 +56,19 @@ export class DashboardComponent {
         (a) => a.status === 'PENDENTE',
       ).length,
   );
+  currentPage = signal(0);
+
+  pageSize = signal(100);
+
+  totalPages = signal(0);
+
+  startDate = signal('');
+
+  endDate = signal('');
+
+  Clipboard = Clipboard;
+
+  Check = Check;
 
   analyzedCount = computed(
     () =>
@@ -55,32 +85,243 @@ export class DashboardComponent {
   );
 
   filteredAnalyses = computed(() => {
-    if (!this.selectedGroup()) {
-      return this.analyses();
+    let data = this.analyses();
+
+    if (this.selectedGroup()) {
+      data = data.filter(
+        (a) =>
+          a.sampleGroup ===
+          this.selectedGroup(),
+      );
     }
 
-    return this.analyses().filter(
-      (a) =>
-        a.sampleGroup === this.selectedGroup(),
-    );
+    if (this.selectedStatus()) {
+      data = data.filter(
+        (a) =>
+          a.status ===
+          this.selectedStatus(),
+      );
+    }
+
+    return data;
   });
+  router = inject(Router);
+  copiedAnalysis = signal<string | null>(null);
+  
+  isInvalid(
+    analysis: any,
+    field: string,
+  ) {
+    return analysis.invalidFields?.includes(
+      field,
+    );
+  }
+
+  getRowClasses(analysis: Analysis) {
+    return {
+      'bg-red-50 border-red-300':
+        analysis.hasAlert &&
+        analysis.status === 'PENDENTE',
+
+      'bg-blue-100 border-blue-300':
+        analysis.status === 'ANALISADO',
+
+      'bg-green-100 border-green-300':
+        analysis.status === 'CONFERIDO',
+    };
+  }
+  buildRetestMessage(
+    analysis: Analysis,
+  ) {
+    const reasons: string[] = [];
+
+    const proteina =
+      analysis.proteina;
+
+    const umidade =
+      analysis.umidade;
+
+    if (
+      analysis.invalidFields?.includes(
+        'proteina',
+      )
+    ) {
+      const proteinRule =
+        analysis.grao ===
+          'FARELO_SOJA'
+          ? analysis.usuario?.includes(
+            'BTG Alto Araguaia',
+          )
+            ? {
+              min: 47,
+              max: 49,
+            }
+            : {
+              min: 45,
+              max: 47,
+            }
+          : {
+            min: 34,
+            max: 37.25,
+          };
+
+      if (
+        proteina <
+        proteinRule.min
+      ) {
+        reasons.push(
+          'Proteína baixa',
+        );
+      }
+
+      if (
+        proteina >
+        proteinRule.max
+      ) {
+        reasons.push(
+          'Proteína alta',
+        );
+      }
+    }
+
+    if (
+      analysis.invalidFields?.includes(
+        'umidade',
+      )
+    ) {
+      reasons.push(
+        'Umidade alta',
+      );
+    }
+
+    const sampleName =
+      analysis.sampleGroup;
+
+    return `Favor refazer a análise da amostra ${sampleName} ${reasons.length > 0 ? 'devido a ' + reasons.join(
+      ' e ',
+    ) + ' ': ''}- ${analysis.usuario}.`;
+  }
+
+  copyRetestMessage(
+  analysis: Analysis,
+) {
+  const message =
+    this.buildRetestMessage(
+      analysis,
+    );
+
+  navigator.clipboard.writeText(
+    message,
+  );
+
+  this.copiedAnalysis.set(
+    analysis.uuid,
+  );
+
+  setTimeout(() => {
+    if (
+      this.copiedAnalysis() ===
+      analysis.uuid
+    ) {
+      this.copiedAnalysis.set(
+        null,
+      );
+    }
+  }, 2000);
+}
+  isFieldInvalid(
+    analysis: Analysis,
+    field: string,
+  ) {
+    return (
+      analysis.invalidFields?.includes(
+        field,
+      ) ?? false
+    );
+  }
+
+  getFieldClasses(
+    analysis: Analysis,
+    field: string,
+  ) {
+    return {
+      'bg-red-100 text-red-700 ring-1 ring-red-300 font-semibold':
+        this.isFieldInvalid(
+          analysis,
+          field,
+        ),
+    };
+  }
+  filterData = signal<FilterData | null>(null);
+
+  query = signal('');
+
+  selectedEmpresa = signal('');
+
+  selectedUsuario = signal('');
+
+  selectedGrao = signal('');
+
+  selectedTipoNir = signal('');
+
+  selectedDispositivo = signal('');
+
+  selectedStatus = signal('');
 
   ngOnInit() {
+    this.loadFilters();
+
     this.loadAnalyses();
+  }
+
+  loadFilters() {
+    this.api.getFilterData().subscribe({
+      next: (response: any) => {
+        this.filterData.set(response);
+      },
+    });
   }
 
   loadAnalyses() {
     this.loading.set(true);
 
-    this.api
-      .getAnalyses({
-        page: 0,
-        size: 20,
-        offset: 0,
+    this.api.getAnalyses({
+        query: this.query(),
+        uuidUsuarios: this.selectedUsuario(),
+        uuidEmpresas: this.selectedEmpresa(),
+        grao: this.selectedGrao(),
+        tipoNir: this.selectedTipoNir(),
+        absNumSerie: this.selectedDispositivo(),
+        startDate: this.formatApiDate(this.startDate(),),
+        endDate: this.formatApiDate(this.endDate(),),
+        page: this.currentPage(),
+        size: this.pageSize(),
+        offset:this.currentPage() * this.pageSize(),
       })
       .subscribe({
         next: (response: any) => {
-          this.analyses.set(response.content);
+          const mapped = response.content.map(
+            (item: any) => {
+              const validation =
+                validateAnalysis(item);
+
+              return {
+                ...item,
+
+                hasAlert:
+                  validation.hasAlert,
+
+                invalidFields:
+                  validation.invalidFields,
+              };
+            },
+          );
+
+          this.analyses.set(mapped);
+
+          this.totalPages.set(
+            response.totalPages,
+          );
         },
 
         complete: () => {
@@ -89,6 +330,35 @@ export class DashboardComponent {
       });
   }
 
+  nextPage() {
+    if (
+      this.currentPage() <
+      this.totalPages() - 1
+    ) {
+      this.currentPage.update((p) => p + 1);
+
+      this.loadAnalyses();
+    }
+  }
+  formatApiDate(date: string) {
+    if (!date) {
+      return '';
+    }
+
+    return `${date}T12:00:00.000Z`;
+  }
+  previousPage() {
+    if (this.currentPage() > 0) {
+      this.currentPage.update((p) => p - 1);
+
+      this.loadAnalyses();
+    }
+  }
+  logout() {
+    this.auth.logout();
+
+    this.router.navigate(['/login']);
+  }
   selectGroup(group: string) {
     this.selectedGroup.set(group);
   }
@@ -108,9 +378,9 @@ export class DashboardComponent {
           items.map((item) =>
             item.uuid === analysis.uuid
               ? {
-                  ...item,
-                  status: status as any,
-                }
+                ...item,
+                status: status as any,
+              }
               : item,
           ),
         );

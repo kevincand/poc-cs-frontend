@@ -54,16 +54,20 @@ export class AuthService {
     }
   }
 
-  logout() {
-    localStorage.clear();
+ logout() {
+  localStorage.removeItem('token');
 
-    this.token.set(null);
+  localStorage.removeItem('role');
 
-    this.role.set(null);
+  localStorage.removeItem('user');
 
-    this.user.set(null);
-  }
+  this.token.set(null);
 
+  this.role.set(null);
+
+  this.user.set(null);
+}
+  
   isAuthenticated() {
     return !!this.token();
   }
