@@ -29,12 +29,16 @@ import {
   Check,
 } from 'lucide-angular';
 
+import {
+  NgSelectModule,
+} from '@ng-select/ng-select';
+
 @Component({
   selector: 'app-dashboard',
 
   standalone: true,
 
-  imports: [CommonModule, FormsModule, LucideAngularModule ],
+  imports: [CommonModule, FormsModule, LucideAngularModule, NgSelectModule],
 
   templateUrl: './dashboard.component.html',
 })
@@ -49,6 +53,7 @@ export class DashboardComponent {
   loading = signal(false);
 
   selectedGroup = signal<string | null>(null);
+
 
   pendingCount = computed(
     () =>
@@ -95,11 +100,11 @@ export class DashboardComponent {
       );
     }
 
-    if (this.selectedStatus()) {
+    if (this.selectedStatus().join(',') !== '') {
       data = data.filter(
         (a) =>
           a.status ===
-          this.selectedStatus(),
+          this.selectedStatus().join(','),
       );
     }
 
@@ -107,7 +112,7 @@ export class DashboardComponent {
   });
   router = inject(Router);
   copiedAnalysis = signal<string | null>(null);
-  
+
   isInvalid(
     analysis: any,
     field: string,
@@ -115,7 +120,44 @@ export class DashboardComponent {
     return analysis.invalidFields?.includes(
       field,
     );
-  }
+  }    
+
+  empresasOrdenadas = computed(() =>
+  [...(this.filterData()?.empresaSet || [])]
+    .sort((a, b) =>
+      a.nomeFantasia.localeCompare(
+        b.nomeFantasia,
+      ),
+    ),
+);
+
+usuariosOrdenados = computed(() =>
+  [...(this.filterData()?.usuarioSet || [])]
+    .sort((a, b) =>
+      a.nome.localeCompare(b.nome),
+    ),
+);
+
+graosOrdenados = computed(() =>
+  [...(this.filterData()?.graoSet || [])]
+    .sort(),
+);
+
+tiposOrdenados = computed(() =>
+  [...(this.filterData()?.tipoNirSet || [])]
+    .sort(),
+);
+
+dispositivosOrdenados = computed(() =>
+  [...(
+    this.filterData()
+      ?.dispositivoNirSet || []
+  )].sort((a, b) =>
+    a.numSerie.localeCompare(
+      b.numSerie,
+    ),
+  ),
+);
 
   getRowClasses(analysis: Analysis) {
     return {
@@ -199,36 +241,36 @@ export class DashboardComponent {
 
     return `Favor refazer a análise da amostra ${sampleName} ${reasons.length > 0 ? 'devido a ' + reasons.join(
       ' e ',
-    ) + ' ': ''}- ${analysis.usuario}.`;
+    ) + ' ' : ''}- ${analysis.usuario}.`;
   }
 
   copyRetestMessage(
-  analysis: Analysis,
-) {
-  const message =
-    this.buildRetestMessage(
-      analysis,
+    analysis: Analysis,
+  ) {
+    const message =
+      this.buildRetestMessage(
+        analysis,
+      );
+
+    navigator.clipboard.writeText(
+      message,
     );
 
-  navigator.clipboard.writeText(
-    message,
-  );
+    this.copiedAnalysis.set(
+      analysis.uuid,
+    );
 
-  this.copiedAnalysis.set(
-    analysis.uuid,
-  );
-
-  setTimeout(() => {
-    if (
-      this.copiedAnalysis() ===
-      analysis.uuid
-    ) {
-      this.copiedAnalysis.set(
-        null,
-      );
-    }
-  }, 2000);
-}
+    setTimeout(() => {
+      if (
+        this.copiedAnalysis() ===
+        analysis.uuid
+      ) {
+        this.copiedAnalysis.set(
+          null,
+        );
+      }
+    }, 2000);
+  }
   isFieldInvalid(
     analysis: Analysis,
     field: string,
@@ -256,17 +298,17 @@ export class DashboardComponent {
 
   query = signal('');
 
-  selectedEmpresa = signal('');
+  selectedEmpresa = signal<string[]>([]);
 
-  selectedUsuario = signal('');
+selectedUsuario = signal<string[]>([]);
 
-  selectedGrao = signal('');
+selectedGrao = signal<string[]>([]);
 
-  selectedTipoNir = signal('');
+selectedTipoNir = signal<string[]>([]);
 
-  selectedDispositivo = signal('');
+selectedDispositivo = signal<string[]>([]);
 
-  selectedStatus = signal('');
+selectedStatus = signal<string[]>([]);
 
   ngOnInit() {
     this.loadFilters();
@@ -286,18 +328,18 @@ export class DashboardComponent {
     this.loading.set(true);
 
     this.api.getAnalyses({
-        query: this.query(),
-        uuidUsuarios: this.selectedUsuario(),
-        uuidEmpresas: this.selectedEmpresa(),
-        grao: this.selectedGrao(),
-        tipoNir: this.selectedTipoNir(),
-        absNumSerie: this.selectedDispositivo(),
-        startDate: this.formatApiDate(this.startDate(),),
-        endDate: this.formatApiDate(this.endDate(),),
-        page: this.currentPage(),
-        size: this.pageSize(),
-        offset:this.currentPage() * this.pageSize(),
-      })
+      query: this.query(),
+      uuidUsuarios: this.selectedUsuario().join(','),
+      uuidEmpresas: this.selectedEmpresa().join(','),
+      grao: this.selectedGrao().join(','),
+      tipoNir: this.selectedTipoNir().join(','),
+      absNumSerie: this.selectedDispositivo().join(','),
+      startDate: this.formatApiDate(this.startDate(),),
+      endDate: this.formatApiDate(this.endDate(),),
+      page: this.currentPage(),
+      size: this.pageSize(),
+      offset: this.currentPage() * this.pageSize(),
+    })
       .subscribe({
         next: (response: any) => {
           const mapped = response.content.map(

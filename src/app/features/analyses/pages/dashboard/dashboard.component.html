@@ -62,109 +62,85 @@
 
                 <input type="date" class="border rounded-xl px-4 py-2" [ngModel]="endDate()"
                     (ngModelChange)="endDate.set($event)" /> -->
-                <select class="border rounded-xl px-4 py-2" [ngModel]="selectedEmpresa()"
-                    (ngModelChange)="selectedEmpresa.set($event)">
-                    <option value="">
-                        Todas empresas
-                    </option>
+                <ng-select class="border rounded-xl px-4 py-2" [items]="empresasOrdenadas()" bindLabel="nomeFantasia"
+                    bindValue="uuid" [multiple]="true" [searchable]="true" [closeOnSelect]="false"
+                    placeholder="Empresas" [ngModel]="selectedEmpresa()" (ngModelChange)="selectedEmpresa.set($event)">
 
-                    @for (empresa of
-                    filterData()?.empresaSet; track
-                    empresa.uuid) {
+                    <ng-template ng-option-tmp let-item="item" let-item$="item$">
+                        <div class="bg-white flex items-center gap-2 cursor-pointer pl-3 py-1">
+                            <input type="checkbox" [checked]="item$.selected"
+                                class="w-4 h-4 cursor-pointer rounded border-gray-300" />
+                            <span class="text-gray-700">{{ item.nomeFantasia }}</span>
+                        </div>
+                    </ng-template>
+                </ng-select>
 
-                    <option [value]="empresa.uuid">
-                        {{ empresa.nomeFantasia }}
-                    </option>
-
-                    }
-                </select>
-
-                <select class="border rounded-xl px-4 py-2" [ngModel]="selectedUsuario()"
+                <ng-select class="border rounded-xl px-4 py-2" [items]="usuariosOrdenados()" bindLabel="nome"
+                    bindValue="uuid" [multiple]="true" [searchable]="true" [closeOnSelect]="false"
+                    placeholder="Operadores" [ngModel]="selectedUsuario()"
                     (ngModelChange)="selectedUsuario.set($event)">
-                    <option value="">
-                        Todos operadores
-                    </option>
 
-                    @for (usuario of
-                    filterData()?.usuarioSet; track
-                    usuario.uuid) {
+                    <ng-template ng-option-tmp let-item="item" let-item$="item$">
+                        <div class="bg-white flex items-center gap-2 cursor-pointer pl-3 py-1">
+                            <input type="checkbox" [checked]="item$.selected"
+                                class="w-4 h-4 cursor-pointer rounded border-gray-300" />
+                            <span class="text-gray-700">{{ item.nome }}</span>
+                        </div>
+                    </ng-template>
+                </ng-select>
 
-                    <option [value]="usuario.uuid">
-                        {{ usuario.nome }}
-                    </option>
-
-                    }
-                </select>
-
-                <select class="border rounded-xl px-4 py-2" [ngModel]="selectedGrao()"
+                <ng-select class="border rounded-xl px-4 py-2" [items]="graosOrdenados()" [multiple]="true"
+                    [searchable]="true" [closeOnSelect]="false" placeholder="Grãos" [ngModel]="selectedGrao()"
                     (ngModelChange)="selectedGrao.set($event)">
-                    <option value="">
-                        Todos grãos
-                    </option>
 
-                    @for (grao of
-                    filterData()?.graoSet; track
-                    grao) {
+                    <ng-template ng-option-tmp let-item="item" let-item$="item$">
+                        <div class="bg-white flex items-center gap-2 cursor-pointer pl-3 py-1">
+                            <input type="checkbox" [checked]="item$.selected"
+                                class="w-4 h-4 cursor-pointer rounded border-gray-300" />
+                            <span class="text-gray-700">{{ item }}</span>
+                        </div>
+                    </ng-template>
+                </ng-select>
 
-                    <option [value]="grao">
-                        {{ grao }}
-                    </option>
-
-                    }
-                </select>
-
-                <select class="border rounded-xl px-4 py-2" [ngModel]="selectedTipoNir()"
+                <ng-select class="border rounded-xl px-4 py-2" [items]="tiposOrdenados()" [multiple]="true"
+                    [searchable]="true" [closeOnSelect]="false" placeholder="Tipos" [ngModel]="selectedTipoNir()"
                     (ngModelChange)="selectedTipoNir.set($event)">
-                    <option value="">
-                        Todos tipos
-                    </option>
 
-                    @for (tipo of
-                    filterData()?.tipoNirSet; track
-                    tipo) {
+                    <ng-template ng-option-tmp let-item="item" let-item$="item$">
+                        <div class="bg-white flex items-center gap-2 cursor-pointer pl-3 py-1">
+                            <input type="checkbox" [checked]="item$.selected"
+                                class="w-4 h-4 cursor-pointer rounded border-gray-300" />
+                            <span class="text-gray-700">{{ item }}</span>
+                        </div>
+                    </ng-template>
+                </ng-select>
 
-                    <option [value]="tipo">
-                        {{ tipo }}
-                    </option>
-
-                    }
-                </select>
-
-                <select class="border rounded-xl px-4 py-2" [ngModel]="selectedDispositivo()"
+                <ng-select class="border rounded-xl px-4 py-2" [items]="dispositivosOrdenados()" bindLabel="numSerie"
+                    bindValue="numSerie" [multiple]="true" [searchable]="true" [closeOnSelect]="false"
+                    placeholder="Dispositivos" [ngModel]="selectedDispositivo()"
                     (ngModelChange)="selectedDispositivo.set($event)">
-                    <option value="">
-                        Todos dispositivos
-                    </option>
 
-                    @for (dispositivo of
-                    filterData()?.dispositivoNirSet;
-                    track dispositivo.id) {
+                    <ng-template ng-option-tmp let-item="item" let-item$="item$">
+                        <div class="bg-white flex items-center gap-2 cursor-pointer pl-3 py-1">
+                            <input type="checkbox" [checked]="item$.selected"
+                                class="w-4 h-4 cursor-pointer rounded border-gray-300" />
+                            <span class="text-gray-700">{{ item.numSerie }}</span>
+                        </div>
+                    </ng-template>
+                </ng-select>
 
-                    <option [value]="dispositivo.numSerie">
-                        {{ dispositivo.numSerie }}
-                    </option>
+                <ng-select class="border rounded-xl px-4 py-2" [items]="['PENDENTE','ANALISADO','CONFERIDO']"
+                    [multiple]="true" [searchable]="false" [closeOnSelect]="false" placeholder="Status"
+                    [ngModel]="selectedStatus()" (ngModelChange)="selectedStatus.set($event)">
 
-                    }
-                </select>
-
-                <select class="border rounded-xl px-4 py-2" [ngModel]="selectedStatus()"
-                    (ngModelChange)="selectedStatus.set($event)">
-                    <option value="">
-                        Todos status
-                    </option>
-
-                    <option value="PENDENTE">
-                        Pendente
-                    </option>
-
-                    <option value="ANALISADO">
-                        Analisado
-                    </option>
-
-                    <option value="CONFERIDO">
-                        Conferido
-                    </option>
-                </select>
+                    <ng-template ng-option-tmp let-item="item" let-item$="item$">
+                        <div class="bg-white flex items-center gap-2 cursor-pointer pl-3 py-1">
+                            <input type="checkbox" [checked]="item$.selected"
+                                class="w-4 h-4 cursor-pointer rounded border-gray-300" />
+                            <span class="text-gray-700">{{ item }}</span>
+                        </div>
+                    </ng-template>
+                </ng-select>
 
                 <button (click)="loadAnalyses()"
                     class="bg-slate-900 hover:bg-slate-800 text-white rounded-xl px-4 py-2 transition-all">

@@ -6,8 +6,7 @@ import { Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class ApiService {
-  private readonly api = 'http://localhost:3000';
-    /* 'https://poc-cs-backend.onrender.com'; */
+  private readonly api = 'https://poc-cs-backend.onrender.com';
 
   constructor(private http: HttpClient) {}
 
@@ -41,4 +40,10 @@ export class ApiService {
       `${this.api}/filters`,
     );
   }
+
+  getSpectrum(uuid: string) {
+  return this.http.get(
+    `${this.api}/analyses/${uuid}/spectrum`,
+  );
+}
 }
