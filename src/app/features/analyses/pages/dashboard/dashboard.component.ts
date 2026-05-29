@@ -54,6 +54,7 @@ export class DashboardComponent {
 
   selectedGroup = signal<string | null>(null);
 
+  error = '';
 
   pendingCount = computed(
     () =>
@@ -365,6 +366,12 @@ selectedStatus = signal<string[]>([]);
             response.totalPages,
           );
         },
+        error: () => {
+        this.error = 'Sessão encerrada. Faça login novamente.';
+
+        this.loading = signal(false);
+        this.logout();
+      },
 
         complete: () => {
           this.loading.set(false);
