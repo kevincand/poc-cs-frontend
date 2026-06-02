@@ -7,8 +7,9 @@ import { Injectable } from '@angular/core';
 })
 export class ApiService {
   private readonly api = 'https://poc-cs-backend.onrender.com';
+  /* private readonly api = 'http://localhost:3000'; */
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   login(data: any) {
     return this.http.post(
@@ -42,8 +43,8 @@ export class ApiService {
   }
 
   getSpectrum(uuid: string) {
-  return this.http.get(
-    `${this.api}/analyses/${uuid}/spectrum`,
-  );
-}
+    return this.http.get(
+      `${this.api}/analyses/${uuid}/spectrum`,
+    );
+  }
 }

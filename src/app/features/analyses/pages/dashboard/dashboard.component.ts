@@ -33,12 +33,16 @@ import {
   NgSelectModule,
 } from '@ng-select/ng-select';
 
+import { MatDialog } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { SpectrumModalComponent } from '../spectrum/spectrum.component';
+
 @Component({
   selector: 'app-dashboard',
 
   standalone: true,
 
-  imports: [CommonModule, FormsModule, LucideAngularModule, NgSelectModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule, NgSelectModule, MatButtonModule],
 
   templateUrl: './dashboard.component.html',
 })
@@ -75,6 +79,8 @@ export class DashboardComponent {
   Clipboard = Clipboard;
 
   Check = Check;
+
+  dialog = inject(MatDialog);
 
   analyzedCount = computed(
     () =>
@@ -322,6 +328,21 @@ selectedStatus = signal<string[]>([]);
       next: (response: any) => {
         this.filterData.set(response);
       },
+    });
+  }
+
+  abrirAnalise(uuid: string): void {
+    this.api.getSpectrum(uuid).subscribe({
+      next: (respostaDoBack) => {
+        this.dialog.open(SpectrumModalComponent, {
+          width: '800px',
+          maxWidth: '90vw',
+          data: respostaDoBack // Passa o JSON recebido diretamente para o modal
+        });
+      },
+      error: (err) => {
+        console.error('Erro ao buscar dados do espectro:', err);
+      }
     });
   }
 

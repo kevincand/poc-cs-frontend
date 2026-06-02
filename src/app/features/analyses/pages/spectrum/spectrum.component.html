@@ -1,0 +1,9 @@
+<h2 mat-dialog-title>Gráfico de Espectro - {{ nomeAnalise }} - {{ data.nir.tipoNir }} ({{ data.nir.numSerie }})</h2>
+<mat-dialog-content>
+  <div class="chart-container" *ngIf="chartData">
+    <canvas baseChart [data]="chartData" [options]="chartOptions" type="line"></canvas>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Fechar</button>
+</mat-dialog-actions>
