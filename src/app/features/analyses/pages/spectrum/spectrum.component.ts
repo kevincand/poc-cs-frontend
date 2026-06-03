@@ -13,7 +13,7 @@ import { CommonModule } from '@angular/common';
 })
 export class SpectrumModalComponent implements OnInit {
   public chartData?: ChartConfiguration<'line'>['data'];
-   public nomeAnalise: string = '';
+  public nomeAnalise: string = '';
   public chartOptions: ChartOptions<'line'> = {
     responsive: true,
     maintainAspectRatio: false,

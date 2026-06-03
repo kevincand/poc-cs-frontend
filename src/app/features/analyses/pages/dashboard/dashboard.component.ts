@@ -36,6 +36,7 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { SpectrumModalComponent } from '../spectrum/spectrum.component';
+import { analyzeSpectrumData, SpectralApiResponse } from '../spectrum/spectral.analysis';
 
 @Component({
   selector: 'app-dashboard',
@@ -339,6 +340,7 @@ selectedStatus = signal<string[]>([]);
           maxWidth: '90vw',
           data: respostaDoBack // Passa o JSON recebido diretamente para o modal
         });
+        console.log(analyzeSpectrumData(respostaDoBack as SpectralApiResponse));
       },
       error: (err) => {
         console.error('Erro ao buscar dados do espectro:', err);
