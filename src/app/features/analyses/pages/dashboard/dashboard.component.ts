@@ -27,6 +27,7 @@ import {
   LucideAngularModule,
   Clipboard,
   Check,
+  ChartSpline
 } from 'lucide-angular';
 
 import {
@@ -80,6 +81,8 @@ export class DashboardComponent {
   Clipboard = Clipboard;
 
   Check = Check;
+  
+  ChartSpline = ChartSpline;
 
   dialog = inject(MatDialog);
 
@@ -332,15 +335,43 @@ selectedStatus = signal<string[]>([]);
     });
   }
 
+  updateSpectrum( uuid: string, spectrumScore: number, spectrumStatus: string,) {
+    this.api
+      .updateSpectrumQuality(
+        uuid,
+        spectrumScore,
+        spectrumStatus
+      ).subscribe(() => {
+        this.analyses.update((items) =>
+          items.map((item) =>
+            item.uuid === uuid
+              ? {
+                ...item,
+                spectrumScore: spectrumScore,
+                spectrumStatus: spectrumStatus as any,
+              }
+              : item,
+          ),
+        );
+      });
+  }
+
   abrirAnalise(uuid: string): void {
     this.api.getSpectrum(uuid).subscribe({
       next: (respostaDoBack) => {
+        
+        const dataSpectrum = analyzeSpectrumData(respostaDoBack as SpectralApiResponse);
+        console.log(dataSpectrum);
+
         this.dialog.open(SpectrumModalComponent, {
           width: '800px',
           maxWidth: '90vw',
-          data: respostaDoBack // Passa o JSON recebido diretamente para o modal
+          data: {
+            spectrumResponse: respostaDoBack,
+            spectrumAnalysis: dataSpectrum
+          } // Passa o JSON recebido diretamente para o modal
         });
-        console.log(analyzeSpectrumData(respostaDoBack as SpectralApiResponse));
+        this.updateSpectrum( uuid, dataSpectrum.score, dataSpectrum.status);
       },
       error: (err) => {
         console.error('Erro ao buscar dados do espectro:', err);
@@ -370,7 +401,6 @@ selectedStatus = signal<string[]>([]);
             (item: any) => {
               const validation =
                 validateAnalysis(item);
-
               return {
                 ...item,
 
@@ -458,4 +488,117 @@ selectedStatus = signal<string[]>([]);
         );
       });
   }
+
+  getSpectrumStatusLabel(
+  status?: string | null,
+) {
+  switch (status) {
+    case 'OK':
+      return 'OK';
+
+    case 'WARNING':
+      return 'Atenção';
+
+    case 'MOTOR_STOPPED':
+      return 'Motor parado';
+
+    case 'BAD_SPECTRUM':
+      return 'Espectro ruim';
+
+    default:
+      return 'Não analisado';
+  }
+}
+
+getSpectrumContainerClasses(
+  analysis: Analysis,
+) {
+  switch (analysis.spectrumStatus) {
+    case 'OK':
+      return 'bg-green-50 border-green-300 text-green-600';
+
+    case 'WARNING':
+      return 'bg-yellow-50 border-yellow-300 text-yellow-600';
+
+    case 'MOTOR_STOPPED':
+      return 'bg-orange-50 border-orange-300 text-orange-700';
+
+    case 'BAD_SPECTRUM':
+      return 'bg-red-50 border-red-300 text-red-700';
+
+    default:
+      return 'bg-slate-50 border-slate-300 text-slate-400';
+  }
+}
+
+getSpectrumTitle(
+  analysis: Analysis,
+) {
+  const scoreText =
+    analysis.spectrumScore !== null &&
+    analysis.spectrumScore !== undefined
+      ? `Score: ${analysis.spectrumScore}`
+      : 'Score não calculado';
+
+  switch (analysis.spectrumStatus) {
+    case 'OK':
+      return `Espectro OK - ${scoreText}`;
+
+    case 'WARNING':
+      return `Espectro com alerta - ${scoreText}`;
+
+    case 'MOTOR_STOPPED':
+      return `Motor parado - ${scoreText}`;
+
+    case 'BAD_SPECTRUM':
+      return `Espectro ruim - ${scoreText}`;
+
+    default:
+      return 'Espectro não analisado';
+  }
+}
+
+getSpectrumBarClasses(
+  analysis: Analysis,
+) {
+  switch (analysis.spectrumStatus) {
+    case 'OK':
+      return 'bg-green-500';
+
+    case 'WARNING':
+      return 'bg-yellow-500';
+
+    case 'MOTOR_STOPPED':
+      return 'bg-orange-500';
+
+    case 'BAD_SPECTRUM':
+      return 'bg-red-500';
+
+    default:
+      return 'bg-slate-300';
+  }
+}
+
+getSpectrumScore(
+  analysis: Analysis,
+) {
+  return analysis.spectrumScore ?? 0;
+}
+
+getSpectrumScoreWidth(
+  analysis: Analysis,
+) {
+  const score =
+    analysis.spectrumScore ?? 0;
+
+  if (score < 0) {
+    return '0%';
+  }
+
+  if (score > 100) {
+    return '100%';
+  }
+
+  return `${score}%`;
+}
 }

@@ -1,9 +1,221 @@
-<h2 mat-dialog-title>Gráfico de Espectro - {{ nomeAnalise }} - {{ data.nir.tipoNir }} ({{ data.nir.numSerie }})</h2>
+<h2 mat-dialog-title>
+  Gráfico de Espectro -
+  {{ nomeAnalise }} -
+  {{ spectrumResponse?.nir?.tipoNir || '-' }}
+  ({{ spectrumResponse?.nir?.numSerie || '-' }})
+</h2>
+
 <mat-dialog-content>
-  <div class="chart-container" *ngIf="chartData">
-    <canvas baseChart [data]="chartData" [options]="chartOptions" type="line"></canvas>
+
+  
+  <!-- RESUMO DA ANÁLISE DO ESPECTRO -->
+
+  <div
+    class="rounded-2xl border p-4 mb-4"
+    [ngClass]="getStatusClasses(status)"
+  >
+    <div
+      class="flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+    >
+      <div>
+        <p class="text-xs uppercase font-semibold opacity-80">
+          Status do espectro
+        </p>
+
+        <h3 class="text-2xl font-bold mt-1">
+          {{ getStatusLabel(status) }}
+        </h3>
+
+        <p class="text-sm mt-1 opacity-90">
+          {{ getStatusDescription(status) }}
+        </p>
+      </div>
+
+      <div class="text-left md:text-right">
+        <p class="text-xs uppercase font-semibold opacity-80">
+          Score
+        </p>
+
+        <p class="text-4xl font-bold">
+          {{ score ? '-' : score }}
+        </p>
+
+        <p class="text-xs opacity-80">
+          de 100
+        </p>
+      </div>
+    </div>
+
+    <div class="mt-4">
+      <div
+        class="h-3 w-full rounded-full bg-white/70 overflow-hidden"
+      >
+        <div
+          class="h-full rounded-full transition-all"
+          [ngClass]="getScoreBarClasses(status)"
+          [style.width]="getScoreWidth()"
+        ></div>
+      </div>
+    </div>
   </div>
+
+<!-- GRÁFICO -->
+
+  <div class="chart-container mb-4" *ngIf="chartData">
+    <canvas
+      baseChart
+      [data]="chartData"
+      [options]="chartOptions"
+      type="line"
+    ></canvas>
+  </div>
+
+  <!-- FLAGS / ALERTAS -->
+
+  @if (flags.length > 0) {
+  <div
+    class="rounded-2xl border border-slate-200 bg-white overflow-hidden mb-4"
+  >
+    <div
+      class="px-4 py-3 border-b border-slate-200 bg-slate-50"
+    >
+      <p class="text-sm font-semibold text-slate-700">
+        Alertas encontrados
+      </p>
+
+      <p class="text-xs text-slate-500 mt-1">
+        Regras que sinalizaram inconsistências no espectro
+      </p>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-white">
+          <tr class="border-b border-slate-200">
+            <th
+              class="text-left px-4 py-3 font-semibold text-slate-500"
+            >
+              Severidade
+            </th>
+
+            <th
+              class="text-left px-4 py-3 font-semibold text-slate-500"
+            >
+              Regra
+            </th>
+
+            <th
+              class="text-left px-4 py-3 font-semibold text-slate-500"
+            >
+              Descrição
+            </th>
+
+            <th
+              class="text-right px-4 py-3 font-semibold text-slate-500"
+            >
+              Valor
+            </th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (flag of flags; track $index) {
+            <tr
+              class="border-b border-slate-100 last:border-b-0 hover:bg-slate-50"
+            >
+              <td class="px-4 py-3 align-top">
+                <span
+                  class="inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold"
+                  [ngClass]="getSeverityClasses(flag.severity)"
+                >
+                  {{ getSeverityLabel(flag.severity) }}
+                </span>
+              </td>
+
+              <td class="px-4 py-3 align-top">
+                <code
+                  class="text-xs bg-slate-100 text-slate-700 px-2 py-1 rounded-md"
+                >
+                  {{ flag.rule }}
+                </code>
+              </td>
+
+              <td
+                class="px-4 py-3 align-top text-slate-700 leading-relaxed"
+              >
+                {{ flag.description }}
+              </td>
+
+              <td
+                class="px-4 py-3 align-top text-right font-semibold text-slate-700 whitespace-nowrap"
+              >
+                {{ formatFlagValue(flag.value) }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+}
+
+  <!-- PRINCIPAIS INDICADORES -->
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+    @for (stat of getMainStats(); track stat.label) {
+      <div
+        class="rounded-xl border border-slate-200 bg-slate-50 p-4"
+      >
+        <p
+          class="text-xs uppercase text-slate-400 font-semibold"
+        >
+          {{ stat.label }}
+        </p>
+
+        <p
+          class="text-lg font-bold text-slate-800 mt-1"
+        >
+          {{ formatNumber(stat.value) }}
+        </p>
+      </div>
+    }
+  </div>
+
+  <!-- STATS DETALHADO RETRÁTIL -->
+
+  <details
+    class="rounded-2xl border border-slate-200 bg-white overflow-hidden"
+  >
+    <summary
+      class="cursor-pointer px-4 py-3 bg-slate-50 text-sm font-semibold text-slate-700"
+    >
+      Estatísticas detalhadas
+    </summary>
+
+    <div
+      class="grid grid-cols-1 md:grid-cols-2 gap-3 p-4"
+    >
+      @for (entry of getStatsEntries(); track entry[0]) {
+        <div
+          class="flex items-center justify-between gap-3 rounded-lg border border-slate-200 p-3"
+        >
+          <span class="text-sm text-slate-500">
+            {{ getStatLabel(entry[0]) }}
+          </span>
+
+          <span
+            class="text-sm font-semibold text-slate-800 text-right"
+          >
+            {{ formatNumber(entry[1]) }}
+          </span>
+        </div>
+      }
+    </div>
+  </details>
 </mat-dialog-content>
+
 <mat-dialog-actions align="end">
-  <button mat-button mat-dialog-close>Fechar</button>
+  <button mat-button mat-dialog-close>
+    Fechar
+  </button>
 </mat-dialog-actions>

@@ -96,69 +96,215 @@ export interface SpectralAnalysisResult {
 // Recomendo recalibrar com mais amostras reais quando tiver base maior.
 
 export const THRESHOLDS = {
-  // Faixa absoluta aceitável de absorbância
+  // ───────────────────────────────────────────────────────────────────────────
+  // FAIXA ABSOLUTA DE ABSORBÂNCIA
+  // ───────────────────────────────────────────────────────────────────────────
+
+  // Valor mínimo absoluto aceitável de absorbância.
+  // Abaixo disso, a leitura pode indicar problema de sinal baixo,
+  // erro de captura, pouca resposta óptica ou dado inválido.
   absMin: 0.085,
+
+  // Valor máximo absoluto aceitável de absorbância.
+  // Acima disso, pode indicar saturação, sujeira na lente,
+  // amostra muito escura, erro óptico ou leitura ruim.
   absMax: 0.85,
 
-  // Faixa esperada para farelo de soja
+  // Valor mínimo esperado para o produto analisado, neste caso farelo de soja.
+  // É menos rígido que absMin/absMax e serve mais como alerta de perfil fora do esperado.
   soybeanMinExpected: 0.10,
+
+  // Valor máximo esperado para farelo de soja.
+  // Acima disso não significa necessariamente erro crítico,
+  // mas indica que a leitura está fora do comportamento esperado para esse produto.
   soybeanMaxExpected: 0.62,
 
-  // Divergência média entre leituras
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // DIVERGÊNCIA ENTRE REPLICATAS
+  // ───────────────────────────────────────────────────────────────────────────
+
+  // Desvio padrão médio entre as replicatas, ponto a ponto.
+  // Mede o quanto as 5 leituras variam entre si ao longo do espectro.
+  // Acima desse valor, gera alerta.
   meanStdDevWarning: 0.012,
+
+  // Desvio padrão médio crítico entre replicatas.
+  // Indica que as leituras estão muito diferentes entre si,
+  // sugerindo análise instável, amostra mal posicionada ou espectro ruim.
   meanStdDevCritical: 0.025,
 
-  // Divergência máxima pontual entre replicatas
+  // Range máximo pontual de alerta.
+  // Em cada comprimento de onda, calcula-se:
+  // maior absorbância - menor absorbância entre as replicatas.
+  // Se em algum ponto esse range passar desse valor, gera alerta.
   maxPointRangeWarning: 0.04,
+
+  // Range máximo pontual crítico.
+  // Indica que pelo menos um ponto do espectro teve grande abertura
+  // entre as replicatas, o que pode indicar ruído, spike ou leitura inconsistente.
   maxPointRangeCritical: 0.08,
 
-  // Motor parado / variabilidade baixa demais
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // MOTOR PARADO / VARIABILIDADE BAIXA DEMAIS
+  // ───────────────────────────────────────────────────────────────────────────
+
+  // Desvio padrão médio baixo demais entre replicatas.
+  // Quando as 5 leituras ficam praticamente idênticas,
+  // isso pode indicar que o motor não girou ou a amostra não se movimentou.
   motorStoppedMeanDivergence: 0.0025,
+
+  // Range máximo baixo demais para motor parado.
+  // Mesmo no ponto de maior diferença, as replicatas continuam muito próximas.
+  // Usado junto com motorStoppedMeanDivergence.
   motorStoppedMaxDivergence: 0.012,
+
+  // Distância média entre as primeiras derivadas das replicatas.
+  // Se as derivadas também são quase idênticas, reforça a suspeita de motor parado.
   derivativeDistanceMotorStopped: 0.0015,
 
-  // Recorte de ruído nas extremidades
+  // Quantidade de pontos ignorados no início do espectro.
+  // No nosso caso, os primeiros 19 pontos são descartados por causa de ruído
+  // causado por variações de energia da lâmpada/sensor.
   ignoredStartPoints: 19,
+
+  // Quantidade de pontos ignorados no final do espectro.
+  // Também descartamos os últimos 19 pontos por instabilidade/ruído de borda.
   ignoredEndPoints: 19,
 
-  // Região usada especificamente para motor parado
+  // Comprimento de onda máximo usado na regra de motor parado.
+  // A detecção de motor parado deve olhar apenas até 1420 nm,
+  // pois acima disso a umidade afeta muito a leitura e pode mascarar o problema.
   motorStoppedMaxWavelength: 1420,
 
-  // Janelas
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // JANELAS DE CÁLCULO
+  // ───────────────────────────────────────────────────────────────────────────
+
+  // Quantidade de pontos usados para calcular o spread no final do espectro útil.
+  // Importante para detectar abertura entre replicatas no final.
   endWindowSize: 15,
+
+  // Quantidade de pontos usados para calcular o spread no início do espectro útil.
+  // Como já descartamos os 19 primeiros pontos, essa baseline começa após o corte.
   baselineWindowSize: 10,
+
+  // Quantidade de pontos da derivada usados para verificar spike no final.
   endDerivativeWindowSize: 20,
 
-  // Spread no final do espectro
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // SPREAD NO FINAL DO ESPECTRO
+  // ───────────────────────────────────────────────────────────────────────────
+
+  // Spread de alerta no final do espectro.
+  // Calcula a média dos últimos N pontos de cada replicata e compara
+  // a maior média contra a menor média.
   endSpreadWarning: 0.04,
+
+  // Spread crítico no final do espectro.
+  // Indica que as replicatas abriram demais no final da leitura.
+  // Pode acontecer por saturação, instabilidade óptica, umidade ou leitura ruim.
   endSpreadCritical: 0.08,
 
-  // Spread no início do espectro
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // SPREAD NO INÍCIO DO ESPECTRO ÚTIL
+  // ───────────────────────────────────────────────────────────────────────────
+
+  // Spread de alerta na baseline.
+  // Mede se as replicatas começam em níveis diferentes após remover os 19 pontos iniciais.
   baselineSpreadWarning: 0.03,
+
+  // Spread crítico na baseline.
+  // Indica diferença grande logo no início útil da leitura.
   baselineSpreadCritical: 0.06,
 
-  // Área sob curva entre replicatas
-  aucSpreadWarning: 0.08,
-  aucSpreadCritical: 0.15,
 
-  // Derivadas após suavização Savitzky-Golay
+  // ───────────────────────────────────────────────────────────────────────────
+  // AUC - ÁREA SOB A CURVA
+  // ───────────────────────────────────────────────────────────────────────────
+
+  // Diferença percentual de área entre replicatas para alerta.
+  // AUC mede a soma geral da absorbância ao longo do espectro.
+  // Se uma replicata tem área muito diferente das outras, pode indicar leitura ruim.
+  aucSpreadWarning: 0.08, // 8%
+
+  // Diferença percentual crítica de área entre replicatas.
+  // Indica que uma ou mais leituras ficaram muito deslocadas no conjunto.
+  aucSpreadCritical: 0.15, // 15%
+
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // DERIVADAS APÓS SUAVIZAÇÃO SAVITZKY-GOLAY
+  // ───────────────────────────────────────────────────────────────────────────
+
+  // Ruído médio de alerta na primeira derivada.
+  // A primeira derivada mede a inclinação da curva.
+  // Valores altos indicam curva serrilhada, ruído ou instabilidade.
   derivativeNoiseWarning: 0.0009,
+
+  // Ruído médio crítico na primeira derivada.
+  // Indica ruído elevado ou variações bruscas demais na forma do espectro.
   derivativeNoiseCritical: 0.0018,
+
+  // Diferença de ruído de derivada entre replicatas para alerta.
+  // Mesmo que o ruído médio esteja aceitável, uma replicata pode estar
+  // mais ruidosa que as outras.
   derivativeNoiseSpreadWarning: 0.00035,
+
+  // Diferença crítica de ruído de derivada entre replicatas.
+  // Indica que pelo menos uma replicata tem comportamento muito diferente.
   derivativeNoiseSpreadCritical: 0.00075,
 
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // CURVATURA / SEGUNDA DERIVADA
+  // ───────────────────────────────────────────────────────────────────────────
+
+  // Curvatura média de alerta.
+  // A segunda derivada mede mudanças bruscas na inclinação.
+  // Ajuda a detectar picos artificiais, ruído ou descontinuidade.
   curvatureWarning: 0.00018,
+
+  // Curvatura crítica.
+  // Indica comportamento abrupto demais na curva,
+  // possivelmente por spike, saturação ou leitura instável.
   curvatureCritical: 0.00040,
+
+  // Diferença de curvatura entre replicatas para alerta.
+  // Detecta quando uma replicata tem formato mais irregular que as demais.
   curvatureSpreadWarning: 0.00008,
+
+  // Diferença crítica de curvatura entre replicatas.
+  // Indica replicata com comportamento de forma muito diferente.
   curvatureSpreadCritical: 0.00018,
 
-  // Pico artificial no final
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // SPIKE ARTIFICIAL NO FINAL DO ESPECTRO
+  // ───────────────────────────────────────────────────────────────────────────
+
+  // Razão de alerta entre a derivada média do final e a derivada média global.
+  // Exemplo: se for 2.5, significa que o final está 2.5x mais inclinado/instável
+  // que o restante do espectro.
   endSpikeRatioWarning: 2.5,
+
+  // Razão crítica de spike final.
+  // Indica crescimento ou queda abrupta no final da curva.
   endSpikeRatioCritical: 4.0,
 
-  // Savitzky-Golay simples, janela 7, polinômio 2
-  // Coeficientes clássicos para suavização:
-  // [-2, 3, 6, 7, 6, 3, -2] / 21
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // SUAVIZAÇÃO SAVITZKY-GOLAY
+  // ───────────────────────────────────────────────────────────────────────────
+
+  // Janela usada na suavização Savitzky-Golay.
+  // No código atual usamos janela fixa 7 com polinômio grau 2:
+  // [-2, 3, 6, 7, 6, 3, -2] / 21.
+  // Essa suavização reduz ruído antes de calcular derivadas.
   savitzkyGolayWindow: 7,
 };
 

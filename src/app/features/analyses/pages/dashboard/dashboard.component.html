@@ -181,6 +181,36 @@
                             </p>
                         </div>
                     </div>
+
+                    <div  class="w-9 h-9 rounded-lg border flex items-center justify-center transition"
+                        [ngClass]="getSpectrumContainerClasses(analysis)" [title]="getSpectrumTitle(analysis)">
+                        <lucide-icon [img]="ChartSpline" class="w-4 h-4"></lucide-icon>
+                    </div>
+
+                    <!-- <div class="rounded-xl border p-3 min-w-[150px]" [ngClass]="getSpectrumContainerClasses(analysis)">
+                        <div class="flex items-center justify-between gap-2 mb-2">
+                            <span class="text-xs font-semibold uppercase">
+                                Espectro
+                            </span>
+
+                            <span class="text-xs font-bold">
+                                @if (analysis.spectrumScore !== null && analysis.spectrumScore !== undefined) {
+                                {{ analysis.spectrumScore }}
+                                } @else {
+                                -
+                                }
+                            </span>
+                        </div>
+
+                        <div class="h-2 w-full rounded-full bg-white/70 overflow-hidden">
+                            <div class="h-full rounded-full transition-all" [ngClass]="getSpectrumBarClasses(analysis)"
+                                [style.width]="getSpectrumScoreWidth(analysis)"></div>
+                        </div>
+
+                        <p class="text-[11px] mt-2 text-center font-medium">
+                            {{ getSpectrumStatusLabel(analysis.spectrumStatus) }}
+                        </p>
+                    </div> -->
                 </div>
 
 
@@ -357,6 +387,10 @@
                             Status
                         </th>
 
+                        <th class="text-center p-4">
+                            Espectro
+                        </th>
+
                         <th class="text-left p-4">
                             Ações
                         </th>
@@ -423,8 +457,35 @@
                                     {{ analysis.dataHora | date:'dd/MM/yyyy HH:mm' }}
                                 </span>
                             </div>
-                        </td>
 
+                        </td>
+                        <td class="p-4">
+                            <div class="rounded-lg border px-3 py-2 w-24"
+                                [ngClass]="getSpectrumContainerClasses(analysis)">
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="font-semibold">
+                                        Espectro
+                                    </span>
+
+                                    <span class="font-bold">
+                                        @if (analysis.spectrumScore !== null && analysis.spectrumScore !== undefined) {
+                                        {{ analysis.spectrumScore }}
+                                        } @else {
+                                        -
+                                        }
+                                    </span>
+                                </div>
+
+                                <div class="h-1.5 w-full rounded-full bg-white/70 overflow-hidden">
+                                    <div class="h-full rounded-full" [ngClass]="getSpectrumBarClasses(analysis)"
+                                        [style.width]="getSpectrumScoreWidth(analysis)"></div>
+                                </div>
+
+                                <p class="text-[10px] mt-1 text-center">
+                                    {{ getSpectrumStatusLabel(analysis.spectrumStatus) }}
+                                </p>
+                            </div>
+                        </td>
                         <td class="p-4">
                             @if (auth.isAdmin()) {
 

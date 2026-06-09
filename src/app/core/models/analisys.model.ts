@@ -5,7 +5,7 @@ export interface Analysis {
 
   sampleGroup: string;
 
-   criadoEm?: string;
+  criadoEm?: string;
 
   grao: string;
 
@@ -32,4 +32,14 @@ export interface Analysis {
   hasAlert: boolean;
 
   invalidFields?: string[];
+
+  spectrumScore?: number | null;
+
+  spectrumStatus?: SpectrumStatus | null;
 }
+
+export type SpectrumStatus =
+  | 'OK'
+  | 'WARNING'
+  | 'MOTOR_STOPPED'
+  | 'BAD_SPECTRUM';
