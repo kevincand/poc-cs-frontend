@@ -2,12 +2,13 @@ import { HttpClient } from '@angular/common/http';
 
 import { Injectable } from '@angular/core';
 
+import { environment } from '../../environments/environment';
+
 @Injectable({
   providedIn: 'root',
 })
 export class ApiService {
-  /* private readonly api = 'https://poc-cs-backend.onrender.com'; */
-  private readonly api = 'http://localhost:3000';
+  private readonly api = environment.api;
 
   constructor(private http: HttpClient) { }
 
