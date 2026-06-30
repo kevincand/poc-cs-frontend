@@ -14,4 +14,10 @@ export const routes: Routes = [
     path: '',
     component: DashboardComponent,
   },
+  {
+  path: 'relatorio-espectros',
+  loadComponent: () =>
+    import('./features/analyses/pages/spectrum-report/spectrum.report.component')
+      .then((m) => m.SpectrumReportComponent),
+},
 ];

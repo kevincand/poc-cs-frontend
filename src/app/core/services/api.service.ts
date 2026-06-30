@@ -61,4 +61,9 @@ export class ApiService {
       },
     );
   }
+  getLatestSpectrumReport() {
+    return this.http.get(
+      `${this.api}/analyses/spectrum-report/latest`,
+    );
+  }
 }

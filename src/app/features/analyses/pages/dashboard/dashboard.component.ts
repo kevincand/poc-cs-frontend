@@ -38,6 +38,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { SpectrumModalComponent } from '../spectrum/spectrum.component';
 import { analyzeSpectrumData, SpectralApiResponse } from '../spectrum/spectral.analysis';
+import { analyzeSoybeanSpectrumData } from '../spectrum/spectrum.soybean.analysis';
 
 @Component({
   selector: 'app-dashboard',
@@ -356,13 +357,14 @@ selectedStatus = signal<string[]>([]);
       });
   }
 
-  abrirAnalise(uuid: string): void {
+  abrirAnalise(uuid: string, grao: string): void {
     this.api.getSpectrum(uuid).subscribe({
       next: (respostaDoBack) => {
-        
-        const dataSpectrum = analyzeSpectrumData(respostaDoBack as SpectralApiResponse);
+        const dataSpectrum = grao === 'SOJA' ? 
+          analyzeSoybeanSpectrumData(respostaDoBack as SpectralApiResponse) 
+          : analyzeSpectrumData(respostaDoBack as SpectralApiResponse);
         console.log(dataSpectrum);
-
+  
         this.dialog.open(SpectrumModalComponent, {
           width: '800px',
           maxWidth: '90vw',
@@ -419,12 +421,17 @@ selectedStatus = signal<string[]>([]);
             response.totalPages,
           );
         },
-        error: () => {
-        this.error = 'Sessão encerrada. Faça login novamente.';
-
-        this.loading = signal(false);
-        this.logout();
-      },
+        error: (res) => {
+          if(res.status === 401) {
+            this.error = 'Sessão encerrada. Faça login novamente.';
+            this.loading.set(false);
+            this.logout();
+          } else {
+            this.error =
+              'Erro ao carregar análises. Tente novamente.';
+            this.loading.set(false);
+          }
+        },
 
         complete: () => {
           this.loading.set(false);

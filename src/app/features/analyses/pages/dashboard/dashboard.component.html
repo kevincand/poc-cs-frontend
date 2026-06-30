@@ -304,7 +304,7 @@
                 @if (auth.isAdmin()) {
 
                 <div class="flex gap-2 mt-4">
-                    <button (click)="updateStatus(analysis, 'ANALISADO'); abrirAnalise(analysis.uuid)"
+                    <button (click)="updateStatus(analysis, 'ANALISADO'); abrirAnalise(analysis.uuid, analysis.grao)"
                         class="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm">
                         Analisado
                     </button>
@@ -490,7 +490,7 @@
                             @if (auth.isAdmin()) {
 
                             <div class="flex gap-2">
-                                <button (click)="updateStatus(analysis, 'ANALISADO'); abrirAnalise(analysis.uuid)"
+                                <button (click)="updateStatus(analysis, 'ANALISADO'); abrirAnalise(analysis.uuid, analysis.grao)"
                                     class="bg-blue-600 text-white px-3 py-1 rounded-lg text-xs">
                                     Analisar
                                 </button>

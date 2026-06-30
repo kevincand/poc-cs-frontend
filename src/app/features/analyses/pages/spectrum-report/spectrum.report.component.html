@@ -1,0 +1,248 @@
+<div class="min-h-screen bg-slate-100 p-4 lg:p-6">
+  <div class="max-w-7xl mx-auto space-y-6">
+    <header
+      class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm"
+    >
+      <div
+        class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4"
+      >
+        <div>
+          <h1 class="text-2xl font-bold text-slate-800">
+            Relatório de Espectros
+          </h1>
+
+          <p class="text-sm text-slate-500 mt-1">
+            Última execução automática da análise espectral
+          </p>
+        </div>
+
+        <button
+          type="button"
+          (click)="loadReport()"
+          class="bg-slate-900 text-white px-4 py-2 rounded-xl text-sm hover:bg-slate-800"
+        >
+          Atualizar
+        </button>
+      </div>
+    </header>
+
+    @if (loading()) {
+      <div class="text-center py-20 text-slate-500">
+        Carregando relatório...
+      </div>
+    } @else if (!report()) {
+      <div
+        class="bg-white rounded-2xl border border-slate-200 p-8 text-center text-slate-500"
+      >
+        Nenhum relatório encontrado ainda.
+      </div>
+    } @else {
+      <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div
+          class="bg-white rounded-2xl border border-slate-200 p-4"
+        >
+          <p class="text-xs uppercase text-slate-400 font-semibold">
+            No período
+          </p>
+
+          <p class="text-3xl font-bold text-slate-800 mt-1">
+            {{ report()?.totalInRange }}
+          </p>
+        </div>
+
+        <div
+          class="bg-white rounded-2xl border border-slate-200 p-4"
+        >
+          <p class="text-xs uppercase text-slate-400 font-semibold">
+            Pendentes
+          </p>
+
+          <p class="text-3xl font-bold text-yellow-700 mt-1">
+            {{ report()?.totalPending }}
+          </p>
+        </div>
+
+        <div
+          class="bg-white rounded-2xl border border-slate-200 p-4"
+        >
+          <p class="text-xs uppercase text-slate-400 font-semibold">
+            Analisados
+          </p>
+
+          <p class="text-3xl font-bold text-blue-700 mt-1">
+            {{ report()?.totalAnalyzed }}
+          </p>
+        </div>
+
+        <div
+          class="bg-white rounded-2xl border border-slate-200 p-4"
+        >
+          <p class="text-xs uppercase text-slate-400 font-semibold">
+            Sinalizados
+          </p>
+
+          <p class="text-3xl font-bold text-red-700 mt-1">
+            {{ report()?.totalReported }}
+          </p>
+        </div>
+      </section>
+
+      <section
+        class="bg-white rounded-2xl border border-slate-200 p-4"
+      >
+        <div
+          class="flex flex-col md:flex-row md:items-center md:justify-between gap-3"
+        >
+          <div>
+            <p class="text-sm font-semibold text-slate-700">
+              Janela analisada
+            </p>
+
+            <p class="text-sm text-slate-500 mt-1">
+              {{ report()?.periodStart | date:'dd/MM/yyyy HH:mm' }}
+              até
+              {{ report()?.periodEnd | date:'dd/MM/yyyy HH:mm' }}
+            </p>
+          </div>
+
+          <div class="text-sm text-slate-500">
+            Última atualização:
+            {{ report()?.executedAt | date:'dd/MM/yyyy HH:mm:ss' }}
+          </div>
+        </div>
+      </section>
+
+      @if (criticalItems().length > 0) {
+        <section
+          class="bg-red-50 border border-red-200 rounded-2xl p-4"
+        >
+          <h2 class="text-lg font-bold text-red-800">
+            Espectros críticos
+          </h2>
+
+          <p class="text-sm text-red-700 mt-1">
+            Amostras com score menor que 50 ou suspeita de motor parado.
+          </p>
+        </section>
+      }
+
+      <section
+        class="bg-white rounded-2xl border border-slate-200 overflow-hidden"
+      >
+        <div
+          class="px-4 py-3 border-b border-slate-200 bg-slate-50"
+        >
+          <h2 class="text-sm font-semibold text-slate-700">
+            Análises processadas
+          </h2>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="bg-white">
+              <tr class="border-b border-slate-200">
+                <th class="text-left p-4">
+                  Amostra
+                </th>
+
+                <th class="text-left p-4">
+                  Operação
+                </th>
+
+                <th class="text-left p-4">
+                  Placa
+                </th>
+
+                <th class="text-right p-4">
+                  Prot.
+                </th>
+
+                <th class="text-right p-4">
+                  Óleo
+                </th>
+
+                <th class="text-right p-4">
+                  Umid.
+                </th>
+
+                <th class="text-center p-4">
+                  Score
+                </th>
+
+                <th class="text-center p-4">
+                  Status
+                </th>
+
+                <th class="text-center p-4">
+                  Flags
+                </th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (item of report()?.items || []; track item.uuid) {
+                <tr
+                  class="border-b border-slate-100 last:border-b-0 hover:bg-slate-50"
+                >
+                  <td class="p-4">
+                    <div class="font-semibold text-slate-800">
+                      {{ item.amostra }}
+                    </div>
+
+                    <div class="text-xs text-slate-400 mt-1">
+                      {{ item.criadoEm | date:'dd/MM/yyyy HH:mm' }}
+                    </div>
+                  </td>
+
+                  <td class="p-4 text-slate-700">
+                    {{ item.operacao }}
+                  </td>
+
+                  <td class="p-4 text-slate-700">
+                    {{ item.placa }}
+                  </td>
+
+                  <td class="p-4 text-right">
+                    {{ formatNumber(item.proteina) }}
+                  </td>
+
+                  <td class="p-4 text-right">
+                    {{ formatNumber(item.oleo) }}
+                  </td>
+
+                  <td class="p-4 text-right">
+                    {{ formatNumber(item.umidade) }}
+                  </td>
+
+                  <td
+                    class="p-4 text-center font-bold"
+                    [ngClass]="getScoreClasses(item.score)"
+                  >
+                    {{ item.score }}
+                  </td>
+
+                  <td class="p-4 text-center">
+                    <span
+                      class="inline-flex rounded-full border px-3 py-1 text-xs font-semibold"
+                      [ngClass]="getStatusClasses(item.spectrumStatus)"
+                    >
+                      {{ getStatusLabel(item.spectrumStatus) }}
+                    </span>
+                  </td>
+
+                  <td class="p-4 text-center">
+                    <span
+                      class="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700"
+                    >
+                      {{ item.flagsCount }}
+                    </span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+  </div>
+</div>

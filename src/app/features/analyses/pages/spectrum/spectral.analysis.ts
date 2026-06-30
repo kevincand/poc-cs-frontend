@@ -612,9 +612,7 @@ export function analyzeSpectrumData(data: SpectralApiResponse): SpectralAnalysis
       severity: "critical",
       value: globalMax,
     });
-  }
-
-  if (globalMax > THRESHOLDS.soybeanMaxExpected) {
+  } else if (globalMax > THRESHOLDS.soybeanMaxExpected) {
     flags.push({
       rule: "SOYBEAN_MAX_EXCEEDED",
       description: `Absorbância máxima ${globalMax.toFixed(4)} acima do esperado para farelo de soja (≤ ${THRESHOLDS.soybeanMaxExpected}).`,
