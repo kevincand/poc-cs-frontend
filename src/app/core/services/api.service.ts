@@ -66,4 +66,22 @@ export class ApiService {
       `${this.api}/analyses/spectrum-report/latest`,
     );
   }
+
+  getDailyReport(params: {
+    date: string;
+    uuidUsuarios?: string;
+    grao?: string;
+  }) {
+    return this.http.get(
+      `${this.api}/analyses/daily-report`,
+      {
+        params: {
+          date: params.date,
+          uuidUsuarios:
+            params.uuidUsuarios || '',
+          grao: params.grao || '',
+        },
+      },
+    );
+  }
 }

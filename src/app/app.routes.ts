@@ -15,9 +15,15 @@ export const routes: Routes = [
     component: DashboardComponent,
   },
   {
-  path: 'relatorio-espectros',
-  loadComponent: () =>
-    import('./features/analyses/pages/spectrum-report/spectrum.report.component')
-      .then((m) => m.SpectrumReportComponent),
-},
+    path: 'relatorio-espectros',
+    loadComponent: () =>
+      import('./features/analyses/pages/spectrum-report/spectrum.report.component')
+        .then((m) => m.SpectrumReportComponent),
+  },
+  {
+    path: 'relatorio-diario',
+    loadComponent: () =>
+      import('./features/analyses/pages/daily-report/daily-report.component')
+        .then((m) => m.DailyReportComponent),
+  },
 ];
