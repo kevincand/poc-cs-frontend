@@ -13,20 +13,21 @@ import { FormsModule } from '@angular/forms';
 import { ApiService } from '@/app/core/services/api.service';
 
 type DailyReport = {
-  date: string;
   totalAnalyses: number;
-  avgProteina: number | null;
-  avgUmidade: number | null;
-  avgOleo: number | null;
 
   spectrumOkCount: number;
   spectrumWarningCount: number;
   spectrumBadCount: number;
   motorStoppedCount: number;
 
+  grainSummary: any[];
+
   repeatedGroups: any[];
+
   operators: any[];
+
   insights: string[];
+
   analyses: any[];
 };
 
@@ -43,8 +44,7 @@ type DailyReport = {
   templateUrl: './daily-report.component.html',
 })
 export class DailyReportComponent
-  implements OnInit
-{
+  implements OnInit {
   private api = inject(ApiService);
 
   loading = signal(false);
@@ -53,9 +53,9 @@ export class DailyReportComponent
 
   filterData = signal<any>(null);
 
-  selectedDate = signal(
-    new Date().toISOString().slice(0, 10),
-  );
+  startDate = signal(new Date().toLocaleDateString('en-CA').slice(0, 10));
+
+  endDate = signal(new Date().toLocaleDateString('en-CA').slice(0, 10));
 
   selectedUsuarios = signal<string[]>([]);
 
@@ -92,15 +92,17 @@ export class DailyReportComponent
   loadReport() {
     this.loading.set(true);
 
-    this.api
-      .getDailyReport({
-        date: this.selectedDate(),
+    this.api.getDailyReport({
+      startDate: this.startDate(),
 
-        uuidUsuarios:
-          this.selectedUsuarios().join(','),
+      endDate: this.endDate(),
 
-        grao: this.selectedGraos().join(','),
-      })
+      uuidUsuarios:
+        this.selectedUsuarios().join(','),
+
+      grao:
+        this.selectedGraos().join(','),
+    })
       .subscribe({
         next: (response: any) => {
           this.report.set(response);

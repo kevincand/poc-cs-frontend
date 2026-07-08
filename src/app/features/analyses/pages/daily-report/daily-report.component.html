@@ -23,18 +23,37 @@
     </header>
 
     <section class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-4">
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
         <div>
           <label class="text-xs font-semibold text-slate-500 uppercase">
             Data
           </label>
 
-          <input
-            type="date"
-            class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2 text-sm"
-            [ngModel]="selectedDate()"
-            (ngModelChange)="selectedDate.set($event)"
-          />
+          <div>
+  <label class="text-xs font-semibold text-slate-500 uppercase">
+    Data inicial
+  </label>
+
+  <input
+      type="date"
+      class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2 text-sm"
+      [ngModel]="startDate()"
+      (ngModelChange)="startDate.set($event)"
+  />
+</div>
+
+<div>
+  <label class="text-xs font-semibold text-slate-500 uppercase">
+    Data final
+  </label>
+
+  <input
+      type="date"
+      class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2 text-sm"
+      [ngModel]="endDate()"
+      (ngModelChange)="endDate.set($event)"
+  />
+</div>
         </div>
 
         <div>
@@ -90,47 +109,107 @@
         Gerando relatório...
       </div>
     } @else if (report()) {
-      <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div class="bg-white rounded-2xl border border-slate-200 p-4">
-          <p class="text-xs uppercase text-slate-400 font-semibold">
-            Total de análises
-          </p>
+      @for (grain of report()?.grainSummary || []; track grain.grao) {
 
-          <p class="text-3xl font-bold text-slate-800 mt-1">
-            {{ report()?.totalAnalyses }}
-          </p>
+<div class="bg-white rounded-2xl border border-slate-200 p-5">
+
+    <h3 class="font-bold text-slate-800 mb-4">
+
+        {{ grain.grao }}
+
+    </h3>
+
+    <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+
+        <div>
+
+            <p class="text-xs text-slate-500">
+
+                Amostras
+
+            </p>
+
+            <p class="text-xl font-bold">
+
+                {{ grain.totalSamples }}
+
+            </p>
+
         </div>
 
-        <div class="bg-white rounded-2xl border border-slate-200 p-4">
-          <p class="text-xs uppercase text-slate-400 font-semibold">
-            Média proteína
-          </p>
+        <div>
 
-          <p class="text-3xl font-bold text-blue-700 mt-1">
-            {{ formatNumber(report()?.avgProteina ?? null) }}%
-          </p>
+            <p class="text-xs text-slate-500">
+
+                Análises
+
+            </p>
+
+            <p class="text-xl font-bold">
+
+                {{ grain.totalAnalyses }}
+
+            </p>
+
         </div>
 
-        <div class="bg-white rounded-2xl border border-slate-200 p-4">
-          <p class="text-xs uppercase text-slate-400 font-semibold">
-            Média umidade
-          </p>
+        <div>
 
-          <p class="text-3xl font-bold text-cyan-700 mt-1">
-            {{ formatNumber(report()?.avgUmidade ?? null) }}%
-          </p>
+            <p class="text-xs text-slate-500">
+
+                Proteína
+
+            </p>
+
+            <p class="text-xl font-bold">
+
+                {{ formatNumber(grain.avgProteina) }}%
+
+            </p>
+
         </div>
 
-        <div class="bg-white rounded-2xl border border-slate-200 p-4">
-          <p class="text-xs uppercase text-slate-400 font-semibold">
-            Possíveis repetições
-          </p>
+        <div>
 
-          <p class="text-3xl font-bold text-orange-700 mt-1">
-            {{ report()?.repeatedGroups?.length || 0 }}
-          </p>
+            <p class="text-xs text-slate-500">
+
+                Umidade
+
+            </p>
+
+            <p class="text-xl font-bold">
+
+                {{ formatNumber(grain.avgUmidade) }}%
+
+            </p>
+
         </div>
-      </section>
+
+        @if (grain.avgOleo !== null) {
+
+        <div>
+
+            <p class="text-xs text-slate-500">
+
+                Óleo
+
+            </p>
+
+            <p class="text-xl font-bold">
+
+                {{ formatNumber(grain.avgOleo) }}%
+
+            </p>
+
+        </div>
+
+        }
+
+    </div>
+
+</div>
+
+}
 
       <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div class="bg-green-50 rounded-2xl border border-green-200 p-4">

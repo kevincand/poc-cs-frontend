@@ -68,7 +68,8 @@ export class ApiService {
   }
 
   getDailyReport(params: {
-    date: string;
+    startDate: string;
+    endDate: string;
     uuidUsuarios?: string;
     grao?: string;
   }) {
@@ -76,7 +77,8 @@ export class ApiService {
       `${this.api}/analyses/daily-report`,
       {
         params: {
-          date: params.date,
+          startDate: params.startDate,
+          endDate: params.endDate,
           uuidUsuarios:
             params.uuidUsuarios || '',
           grao: params.grao || '',
