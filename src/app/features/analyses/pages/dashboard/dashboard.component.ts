@@ -173,14 +173,14 @@ dispositivosOrdenados = computed(() =>
 
   getRowClasses(analysis: Analysis) {
     return {
-      'bg-red-50 border-red-300':
+      'border-l-amber-500':
         analysis.hasAlert &&
         analysis.status === 'PENDENTE',
 
-      'bg-blue-100 border-blue-300':
+      'border-l-blue-500':
         analysis.status === 'ANALISADO',
 
-      'bg-green-100 border-green-300':
+      'border-l-emerald-500':
         analysis.status === 'CONFERIDO',
     };
   }
@@ -522,10 +522,10 @@ getSpectrumContainerClasses(
 ) {
   switch (analysis.spectrumStatus) {
     case 'OK':
-      return 'bg-green-50 border-green-300 text-green-600';
+      return 'border-emerald-200 bg-emerald-50 text-green-600';
 
     case 'WARNING':
-      return 'bg-yellow-50 border-yellow-300 text-yellow-600';
+      return 'border-amber-200 bg-amber-50 text-yellow-600';
 
     case 'MOTOR_STOPPED':
       return 'bg-orange-50 border-orange-300 text-orange-700';

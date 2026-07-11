@@ -12,11 +12,9 @@
           </p>
         </div>
 
-        <button
-          type="button"
-          (click)="loadReport()"
-          class="bg-slate-900 text-white px-4 py-2 rounded-xl text-sm hover:bg-slate-800"
-        >
+        <button type="button" (click)="loadReport()"
+          class="bg-slate-600 hover:bg-slate-700 text-white rounded-xl px-4 py-2 transition-all font-medium">
+
           Gerar relatório
         </button>
       </div>
@@ -25,35 +23,23 @@
     <section class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-4">
       <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
         <div>
-          <label class="text-xs font-semibold text-slate-500 uppercase">
-            Data
-          </label>
+          <div>
+            <label class="text-xs font-semibold text-slate-500 uppercase">
+              Data inicial
+            </label>
+
+            <input type="date" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2 text-sm"
+              [ngModel]="startDate()" (ngModelChange)="startDate.set($event)" />
+          </div>
 
           <div>
-  <label class="text-xs font-semibold text-slate-500 uppercase">
-    Data inicial
-  </label>
+            <label class="text-xs font-semibold text-slate-500 uppercase">
+              Data final
+            </label>
 
-  <input
-      type="date"
-      class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2 text-sm"
-      [ngModel]="startDate()"
-      (ngModelChange)="startDate.set($event)"
-  />
-</div>
-
-<div>
-  <label class="text-xs font-semibold text-slate-500 uppercase">
-    Data final
-  </label>
-
-  <input
-      type="date"
-      class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2 text-sm"
-      [ngModel]="endDate()"
-      (ngModelChange)="endDate.set($event)"
-  />
-</div>
+            <input type="date" class="mt-1 w-full border border-slate-300 rounded-xl px-3 py-2 text-sm"
+              [ngModel]="endDate()" (ngModelChange)="endDate.set($event)" />
+          </div>
         </div>
 
         <div>
@@ -63,18 +49,14 @@
 
           <div class="mt-2 flex flex-wrap gap-2">
             @for (grao of graos; track grao) {
-              <button
-                type="button"
-                (click)="toggleGrao(grao)"
-                class="px-3 py-1 rounded-full border text-xs font-semibold"
-                [ngClass]="
+            <button type="button" (click)="toggleGrao(grao)" class="px-3 py-1 rounded-full border text-xs font-semibold"
+              [ngClass]="
                   selectedGraos().includes(grao)
                     ? 'bg-slate-900 text-white border-slate-900'
                     : 'bg-white text-slate-600 border-slate-300'
-                "
-              >
-                {{ grao }}
-              </button>
+                ">
+              {{ grao }}
+            </button>
             }
           </div>
         </div>
@@ -86,18 +68,14 @@
 
           <div class="mt-2 max-h-28 overflow-y-auto flex flex-wrap gap-2">
             @for (usuario of usuariosOrdenados(); track usuario.uuid) {
-              <button
-                type="button"
-                (click)="toggleUsuario(usuario.uuid)"
-                class="px-3 py-1 rounded-full border text-xs font-semibold"
-                [ngClass]="
+            <button type="button" (click)="toggleUsuario(usuario.uuid)"
+              class="px-3 py-1 rounded-full border text-xs font-semibold" [ngClass]="
                   selectedUsuarios().includes(usuario.uuid)
                     ? 'bg-blue-700 text-white border-blue-700'
                     : 'bg-white text-slate-600 border-slate-300'
-                "
-              >
-                {{ usuario.nome }}
-              </button>
+                ">
+              {{ usuario.nome }}
+            </button>
             }
           </div>
         </div>
@@ -105,83 +83,83 @@
     </section>
 
     @if (loading()) {
-      <div class="text-center py-20 text-slate-500">
-        Gerando relatório...
-      </div>
+    <div class="text-center py-20 text-slate-500">
+      Gerando relatório...
+    </div>
     } @else if (report()) {
-      @for (grain of report()?.grainSummary || []; track grain.grao) {
+    @for (grain of report()?.grainSummary || []; track grain.grao) {
 
-<div class="bg-white rounded-2xl border border-slate-200 p-5">
+    <div class="bg-white rounded-2xl border border-slate-200 p-5">
 
-    <h3 class="font-bold text-slate-800 mb-4">
+      <h3 class="font-bold text-slate-600 mb-4">
 
-        {{ grain.grao }}
+        {{ grain.grao.replace("_"," ") }}
 
-    </h3>
+      </h3>
 
-    <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+      <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
 
         <div>
 
-            <p class="text-xs text-slate-500">
+          <p class="text-xs uppercase text-slate-400 font-semibold">
 
-                Amostras
+            Amostras
 
-            </p>
+          </p>
 
-            <p class="text-xl font-bold">
+          <p class="text-2xl font-bold text-blue-700 mt-1">
 
-                {{ grain.totalSamples }}
+            {{ grain.totalSamples }}
 
-            </p>
+          </p>
 
         </div>
 
         <div>
 
-            <p class="text-xs text-slate-500">
+          <p class="text-xs uppercase text-slate-400 font-semibold">
 
-                Análises
+            Análises
 
-            </p>
+          </p>
 
-            <p class="text-xl font-bold">
+          <p class="text-2xl font-bold text-blue-700 mt-1">
 
-                {{ grain.totalAnalyses }}
+            {{ grain.totalAnalyses }}
 
-            </p>
-
-        </div>
-
-        <div>
-
-            <p class="text-xs text-slate-500">
-
-                Proteína
-
-            </p>
-
-            <p class="text-xl font-bold">
-
-                {{ formatNumber(grain.avgProteina) }}%
-
-            </p>
+          </p>
 
         </div>
 
         <div>
 
-            <p class="text-xs text-slate-500">
+          <p class="text-xs uppercase text-slate-400 font-semibold">
 
-                Umidade
+            Proteína
 
-            </p>
+          </p>
 
-            <p class="text-xl font-bold">
+          <p class="text-2xl font-bold text-blue-700 mt-1">
 
-                {{ formatNumber(grain.avgUmidade) }}%
+            {{ formatNumber(grain.avgProteina) }}%
 
-            </p>
+          </p>
+
+        </div>
+
+        <div>
+
+          <p class="text-xs uppercase text-slate-400 font-semibold">
+
+            Umidade
+
+          </p>
+
+          <p class="text-2xl font-bold text-blue-700 mt-1">
+
+            {{ formatNumber(grain.avgUmidade) }}%
+
+          </p>
 
         </div>
 
@@ -189,252 +167,250 @@
 
         <div>
 
-            <p class="text-xs text-slate-500">
+          <p class="text-xs uppercase text-slate-400 font-semibold">
 
-                Óleo
+            Óleo
 
-            </p>
+          </p>
 
-            <p class="text-xl font-bold">
+          <p class="text-2xl font-bold text-blue-700 mt-1">
 
-                {{ formatNumber(grain.avgOleo) }}%
+            {{ formatNumber(grain.avgOleo) }}%
 
-            </p>
+          </p>
 
         </div>
 
         }
 
+      </div>
+
     </div>
 
-</div>
+    }
 
-}
+    <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div class="bg-green-50 rounded-2xl border border-green-200 p-4">
+        <p class="text-xs uppercase text-green-700 font-semibold">
+          Espectros OK
+        </p>
 
-      <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div class="bg-green-50 rounded-2xl border border-green-200 p-4">
-          <p class="text-xs uppercase text-green-700 font-semibold">
-            Espectros OK
-          </p>
+        <p class="text-3xl font-bold text-green-800 mt-1">
+          {{ report()?.spectrumOkCount }}
+        </p>
+      </div>
 
-          <p class="text-3xl font-bold text-green-800 mt-1">
-            {{ report()?.spectrumOkCount }}
-          </p>
+      <div class="bg-yellow-50 rounded-2xl border border-yellow-200 p-4">
+        <p class="text-xs uppercase text-yellow-700 font-semibold">
+          Atenção
+        </p>
+
+        <p class="text-3xl font-bold text-yellow-800 mt-1">
+          {{ report()?.spectrumWarningCount }}
+        </p>
+      </div>
+
+      <div class="bg-red-50 rounded-2xl border border-red-200 p-4">
+        <p class="text-xs uppercase text-red-700 font-semibold">
+          Críticos
+        </p>
+
+        <p class="text-3xl font-bold text-red-800 mt-1">
+          {{ report()?.spectrumBadCount }}
+        </p>
+      </div>
+
+      <div class="bg-orange-50 rounded-2xl border border-orange-200 p-4">
+        <p class="text-xs uppercase text-orange-700 font-semibold">
+          Motor parado
+        </p>
+
+        <p class="text-3xl font-bold text-orange-800 mt-1">
+          {{ report()?.motorStoppedCount }}
+        </p>
+      </div>
+    </section>
+
+    <section class="bg-white rounded-2xl border border-slate-200 p-5">
+      <h2 class="text-lg font-bold text-slate-800">
+        Insights do dia
+      </h2>
+
+      <div class="mt-4 space-y-3">
+        @for (insight of report()?.insights || []; track insight) {
+        <div class="rounded-xl bg-slate-50 border border-slate-200 p-4 text-sm text-slate-700">
+          {{ insight }}
         </div>
+        }
+      </div>
+    </section>
 
-        <div class="bg-yellow-50 rounded-2xl border border-yellow-200 p-4">
-          <p class="text-xs uppercase text-yellow-700 font-semibold">
-            Atenção
-          </p>
-
-          <p class="text-3xl font-bold text-yellow-800 mt-1">
-            {{ report()?.spectrumWarningCount }}
-          </p>
-        </div>
-
-        <div class="bg-red-50 rounded-2xl border border-red-200 p-4">
-          <p class="text-xs uppercase text-red-700 font-semibold">
-            Críticos
-          </p>
-
-          <p class="text-3xl font-bold text-red-800 mt-1">
-            {{ report()?.spectrumBadCount }}
-          </p>
-        </div>
-
-        <div class="bg-orange-50 rounded-2xl border border-orange-200 p-4">
-          <p class="text-xs uppercase text-orange-700 font-semibold">
-            Motor parado
-          </p>
-
-          <p class="text-3xl font-bold text-orange-800 mt-1">
-            {{ report()?.motorStoppedCount }}
-          </p>
-        </div>
-      </section>
-
-      <section class="bg-white rounded-2xl border border-slate-200 p-5">
-        <h2 class="text-lg font-bold text-slate-800">
-          Insights do dia
+    <section class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+      <div class="px-4 py-3 border-b border-slate-200 bg-slate-50">
+        <h2 class="text-sm font-semibold text-slate-700">
+          Resumo por operador
         </h2>
+      </div>
 
-        <div class="mt-4 space-y-3">
-          @for (insight of report()?.insights || []; track insight) {
-            <div class="rounded-xl bg-slate-50 border border-slate-200 p-4 text-sm text-slate-700">
-              {{ insight }}
-            </div>
-          }
-        </div>
-      </section>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-slate-200">
+              <th class="p-4 text-left">Operador</th>
+              <th class="p-4 text-right">Qtd.</th>
+              <th class="p-4 text-right">Prot.</th>
+              <th class="p-4 text-right">Umid.</th>
+              <th class="p-4 text-right">Óleo</th>
+              <th class="p-4 text-center">Atenção</th>
+              <th class="p-4 text-center">Crítico</th>
+              <th class="p-4 text-center">Motor</th>
+              <th class="p-4 text-center">Repetições</th>
+            </tr>
+          </thead>
 
-      <section class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-        <div class="px-4 py-3 border-b border-slate-200 bg-slate-50">
-          <h2 class="text-sm font-semibold text-slate-700">
-            Resumo por operador
-          </h2>
-        </div>
+          <tbody>
+            @for (op of report()?.operators || []; track op.operadorNome) {
+            <tr class="border-b border-slate-100 hover:bg-slate-50">
+              <td class="p-4 font-semibold text-slate-800">
+                {{ op.operadorNome }}
+              </td>
 
-        <div class="overflow-x-auto">
-          <table class="w-full text-sm">
-            <thead>
-              <tr class="border-b border-slate-200">
-                <th class="p-4 text-left">Operador</th>
-                <th class="p-4 text-right">Qtd.</th>
-                <th class="p-4 text-right">Prot.</th>
-                <th class="p-4 text-right">Umid.</th>
-                <th class="p-4 text-right">Óleo</th>
-                <th class="p-4 text-center">Atenção</th>
-                <th class="p-4 text-center">Crítico</th>
-                <th class="p-4 text-center">Motor</th>
-                <th class="p-4 text-center">Repetições</th>
-              </tr>
-            </thead>
+              <td class="p-4 text-right">
+                {{ op.totalAnalyses }}
+              </td>
 
-            <tbody>
-              @for (op of report()?.operators || []; track op.operadorNome) {
-                <tr class="border-b border-slate-100 hover:bg-slate-50">
-                  <td class="p-4 font-semibold text-slate-800">
-                    {{ op.operadorNome }}
-                  </td>
+              <td class="p-4 text-right">
+                {{ formatNumber(op.avgProteina) }}%
+              </td>
 
-                  <td class="p-4 text-right">
-                    {{ op.totalAnalyses }}
-                  </td>
+              <td class="p-4 text-right">
+                {{ formatNumber(op.avgUmidade) }}%
+              </td>
 
-                  <td class="p-4 text-right">
-                    {{ formatNumber(op.avgProteina) }}%
-                  </td>
+              <td class="p-4 text-right">
+                {{ formatNumber(op.avgOleo) }}%
+              </td>
 
-                  <td class="p-4 text-right">
-                    {{ formatNumber(op.avgUmidade) }}%
-                  </td>
+              <td class="p-4 text-center">
+                {{ op.spectrumWarningCount }}
+              </td>
 
-                  <td class="p-4 text-right">
-                    {{ formatNumber(op.avgOleo) }}%
-                  </td>
+              <td class="p-4 text-center">
+                {{ op.spectrumBadCount }}
+              </td>
 
-                  <td class="p-4 text-center">
-                    {{ op.spectrumWarningCount }}
-                  </td>
+              <td class="p-4 text-center">
+                {{ op.motorStoppedCount }}
+              </td>
 
-                  <td class="p-4 text-center">
-                    {{ op.spectrumBadCount }}
-                  </td>
+              <td class="p-4 text-center">
+                {{ op.repeatedSamplesCount }}
+              </td>
+            </tr>
 
-                  <td class="p-4 text-center">
-                    {{ op.motorStoppedCount }}
-                  </td>
-
-                  <td class="p-4 text-center">
-                    {{ op.repeatedSamplesCount }}
-                  </td>
-                </tr>
-
-                @if (op.insights?.length) {
-                  <tr class="bg-slate-50">
-                    <td colspan="9" class="p-4">
-                      <div class="space-y-2">
-                        @for (insight of op.insights; track insight) {
-                          <p class="text-xs text-slate-600">
-                            • {{ insight }}
-                          </p>
-                        }
-                      </div>
-                    </td>
-                  </tr>
-                }
-              }
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <section class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-        <div class="px-4 py-3 border-b border-slate-200 bg-slate-50">
-          <h2 class="text-sm font-semibold text-slate-700">
-            Possíveis repetições de amostras
-          </h2>
-        </div>
-
-        <div class="divide-y divide-slate-100">
-          @for (group of report()?.repeatedGroups || []; track group.sampleKey) {
-            <div class="p-4">
-              <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
-                <div>
-                  <p class="font-bold text-slate-800">
-                    {{ group.possibleOriginalNames[0] }}
+            @if (op.insights?.length) {
+            <tr class="bg-slate-50">
+              <td colspan="9" class="p-4">
+                <div class="space-y-2">
+                  @for (insight of op.insights; track insight) {
+                  <p class="text-xs text-slate-600">
+                    • {{ insight }}
                   </p>
-
-                  <p class="text-xs text-slate-500 mt-1">
-                    {{ group.count }} análises próximas |
-                    {{ group.firstCreatedAt | date:'dd/MM/yyyy HH:mm' }}
-                    até
-                    {{ group.lastCreatedAt | date:'dd/MM/yyyy HH:mm' }}
-                  </p>
+                  }
                 </div>
-              </div>
+              </td>
+            </tr>
+            }
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
 
-              <p class="mt-3 text-sm text-slate-700 bg-orange-50 border border-orange-200 rounded-xl p-3">
-                {{ group.insight }}
+    <section class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+      <div class="px-4 py-3 border-b border-slate-200 bg-slate-50">
+        <h2 class="text-sm font-semibold text-slate-700">
+          Possíveis repetições de amostras
+        </h2>
+      </div>
+
+      <div class="divide-y divide-slate-100">
+        @for (group of report()?.repeatedGroups || []; track group.sampleKey) {
+        <div class="p-4">
+          <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
+            <div>
+              <p class="font-bold text-slate-800">
+                {{ group.possibleOriginalNames[0] }}
               </p>
 
-              <div class="mt-3 overflow-x-auto">
-                <table class="w-full text-xs">
-                  <thead>
-                    <tr class="text-slate-500">
-                      <th class="text-left py-2">Nome</th>
-                      <th class="text-left py-2">Operador</th>
-                      <th class="text-left py-2">Hora</th>
-                      <th class="text-right py-2">Prot.</th>
-                      <th class="text-right py-2">Umid.</th>
-                      <th class="text-center py-2">Status espectro</th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    @for (item of group.analyses; track item.uuid) {
-                      <tr class="border-t border-slate-100">
-                        <td class="py-2">
-                          {{ item.nome }}
-                        </td>
-
-                        <td class="py-2">
-                          {{ item.operadorNome }}
-                        </td>
-
-                        <td class="py-2">
-                          {{ item.criadoEm | date:'HH:mm' }}
-                        </td>
-
-                        <td class="py-2 text-right">
-                          {{ formatNumber(item.proteina) }}
-                        </td>
-
-                        <td class="py-2 text-right">
-                          {{ formatNumber(item.umidade) }}
-                        </td>
-
-                        <td class="py-2 text-center">
-                          <span
-                            class="inline-flex rounded-full border px-2 py-1 text-xs font-semibold"
-                            [ngClass]="getSpectrumStatusClasses(item.spectrumStatus)"
-                          >
-                            {{ getStatusLabel(item.spectrumStatus) }}
-                          </span>
-                        </td>
-                      </tr>
-                    }
-                  </tbody>
-                </table>
-              </div>
+              <p class="text-xs text-slate-500 mt-1">
+                {{ group.count }} análises próximas |
+                {{ group.firstCreatedAt | date:'dd/MM/yyyy HH:mm' }}
+                até
+                {{ group.lastCreatedAt | date:'dd/MM/yyyy HH:mm' }}
+              </p>
             </div>
-          } @empty {
-            <div class="p-6 text-center text-slate-500">
-              Nenhuma repetição provável encontrada.
-            </div>
-          }
+          </div>
+
+          <p class="mt-3 text-sm text-slate-700 bg-orange-50 border border-orange-200 rounded-xl p-3">
+            {{ group.insight }}
+          </p>
+
+          <div class="mt-3 overflow-x-auto">
+            <table class="w-full text-xs">
+              <thead>
+                <tr class="text-slate-500">
+                  <th class="text-left py-2">Nome</th>
+                  <th class="text-left py-2">Operador</th>
+                  <th class="text-left py-2">Hora</th>
+                  <th class="text-right py-2">Prot.</th>
+                  <th class="text-right py-2">Umid.</th>
+                  <th class="text-center py-2">Status espectro</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                @for (item of group.analyses; track item.uuid) {
+                <tr class="border-t border-slate-100">
+                  <td class="py-2">
+                    {{ item.nome }}
+                  </td>
+
+                  <td class="py-2">
+                    {{ item.operadorNome }}
+                  </td>
+
+                  <td class="py-2">
+                    {{ item.criadoEm | date:'HH:mm' }}
+                  </td>
+
+                  <td class="py-2 text-right">
+                    {{ formatNumber(item.proteina) }}
+                  </td>
+
+                  <td class="py-2 text-right">
+                    {{ formatNumber(item.umidade) }}
+                  </td>
+
+                  <td class="py-2 text-center">
+                    <span class="inline-flex rounded-full border px-2 py-1 text-xs font-semibold"
+                      [ngClass]="getSpectrumStatusClasses(item.spectrumStatus)">
+                      {{ getStatusLabel(item.spectrumStatus) }}
+                    </span>
+                  </td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          </div>
         </div>
-      </section>
+        } @empty {
+        <div class="p-6 text-center text-slate-500">
+          Nenhuma repetição provável encontrada.
+        </div>
+        }
+      </div>
+    </section>
     }
   </div>
 </div>

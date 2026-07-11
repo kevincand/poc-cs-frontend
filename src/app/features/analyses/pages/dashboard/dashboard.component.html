@@ -5,67 +5,55 @@
                 <h1 class="text-2xl font-bold text-slate-800">
                     Dashboard de Análises
                 </h1>
-
                 <p class="text-slate-500">
                     Monitoramento operacional
                 </p>
             </div>
 
             <div class="flex items-center gap-3 flex-wrap">
-                <div class="bg-yellow-100 text-yellow-700 px-4 py-2 rounded-xl text-sm font-medium">
-                    Pendente:
-                    {{ pendingCount() }}
+                <div
+                    class="bg-amber-50 text-amber-700 border border-amber-200 px-4 py-2 rounded-xl text-sm font-medium">
+                    Pendente: {{ pendingCount() }}
                 </div>
-
-                <div class="bg-blue-100 text-blue-700 px-4 py-2 rounded-xl text-sm font-medium">
-                    Analisado:
-                    {{ analyzedCount() }}
+                <div
+                    class="bg-slate-50 text-slate-700 border border-slate-200 px-4 py-2 rounded-xl text-sm font-medium">
+                    Analisado: {{ analyzedCount() }}
                 </div>
-
-                <div class="bg-green-100 text-green-700 px-4 py-2 rounded-xl text-sm font-medium">
-                    Conferido:
-                    {{ checkedCount() }}
+                <div
+                    class="bg-emerald-50 text-emerald-700 border border-emerald-200 px-4 py-2 rounded-xl text-sm font-medium">
+                    Conferido: {{ checkedCount() }}
                 </div>
                 <button (click)="logout()"
-                    class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-xl text-sm transition-colors">
+                    class="bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 px-4 py-2 rounded-xl text-sm transition-colors flex items-center gap-2">
                     Sair
                 </button>
-
             </div>
         </div>
     </header>
 
     <main class="p-4 lg:p-6">
         @if (selectedGroup()) {
-
         <div class="mb-4 bg-blue-50 border border-blue-200 rounded-xl p-3 flex items-center justify-between">
             <span class="text-sm text-blue-700">
-                Filtrando:
-                {{ selectedGroup() }}
+                Filtrando: {{ selectedGroup() }}
             </span>
-
             <button (click)="clearFilter()" class="text-sm text-blue-600 hover:text-blue-800">
                 Limpar
             </button>
         </div>
-
         }
 
         <!-- FILTROS -->
-
-        <div class="bg-white rounded-2xl shadow-sm p-4 mb-6">
+        <div class="bg-white rounded-2xl shadow-sm p-4 mb-6 border border-slate-100">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <input type="text" placeholder="Buscar amostra..." class="border rounded-xl px-4 py-2"
+                <input type="text" placeholder="Buscar amostra..."
+                    class="border border-slate-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-slate-200"
                     [ngModel]="query()" (ngModelChange)="query.set($event)" />
-                <!-- <input type="date" class="border rounded-xl px-4 py-2" [ngModel]="startDate()"
-                    (ngModelChange)="startDate.set($event)" />
 
-                <input type="date" class="border rounded-xl px-4 py-2" [ngModel]="endDate()"
-                    (ngModelChange)="endDate.set($event)" /> -->
-                <ng-select class="border rounded-xl px-4 py-2" [items]="empresasOrdenadas()" bindLabel="nomeFantasia"
-                    bindValue="uuid" [multiple]="true" [searchable]="true" [closeOnSelect]="false"
-                    placeholder="Empresas" [ngModel]="selectedEmpresa()" (ngModelChange)="selectedEmpresa.set($event)">
-
+                <ng-select class="border border-slate-200 rounded-xl px-4 py-2" [items]="empresasOrdenadas()"
+                    bindLabel="nomeFantasia" bindValue="uuid" [multiple]="true" [searchable]="true"
+                    [closeOnSelect]="false" placeholder="Empresas" [ngModel]="selectedEmpresa()"
+                    (ngModelChange)="selectedEmpresa.set($event)">
                     <ng-template ng-option-tmp let-item="item" let-item$="item$">
                         <div class="bg-white flex items-center gap-2 cursor-pointer pl-3 py-1">
                             <input type="checkbox" [checked]="item$.selected"
@@ -75,11 +63,10 @@
                     </ng-template>
                 </ng-select>
 
-                <ng-select class="border rounded-xl px-4 py-2" [items]="usuariosOrdenados()" bindLabel="nome"
-                    bindValue="uuid" [multiple]="true" [searchable]="true" [closeOnSelect]="false"
+                <ng-select class="border border-slate-200 rounded-xl px-4 py-2" [items]="usuariosOrdenados()"
+                    bindLabel="nome" bindValue="uuid" [multiple]="true" [searchable]="true" [closeOnSelect]="false"
                     placeholder="Operadores" [ngModel]="selectedUsuario()"
                     (ngModelChange)="selectedUsuario.set($event)">
-
                     <ng-template ng-option-tmp let-item="item" let-item$="item$">
                         <div class="bg-white flex items-center gap-2 cursor-pointer pl-3 py-1">
                             <input type="checkbox" [checked]="item$.selected"
@@ -89,10 +76,9 @@
                     </ng-template>
                 </ng-select>
 
-                <ng-select class="border rounded-xl px-4 py-2" [items]="graosOrdenados()" [multiple]="true"
-                    [searchable]="true" [closeOnSelect]="false" placeholder="Grãos" [ngModel]="selectedGrao()"
-                    (ngModelChange)="selectedGrao.set($event)">
-
+                <ng-select class="border border-slate-200 rounded-xl px-4 py-2" [items]="graosOrdenados()"
+                    [multiple]="true" [searchable]="true" [closeOnSelect]="false" placeholder="Grãos"
+                    [ngModel]="selectedGrao()" (ngModelChange)="selectedGrao.set($event)">
                     <ng-template ng-option-tmp let-item="item" let-item$="item$">
                         <div class="bg-white flex items-center gap-2 cursor-pointer pl-3 py-1">
                             <input type="checkbox" [checked]="item$.selected"
@@ -102,10 +88,9 @@
                     </ng-template>
                 </ng-select>
 
-                <ng-select class="border rounded-xl px-4 py-2" [items]="tiposOrdenados()" [multiple]="true"
-                    [searchable]="true" [closeOnSelect]="false" placeholder="Tipos" [ngModel]="selectedTipoNir()"
-                    (ngModelChange)="selectedTipoNir.set($event)">
-
+                <ng-select class="border border-slate-200 rounded-xl px-4 py-2" [items]="tiposOrdenados()"
+                    [multiple]="true" [searchable]="true" [closeOnSelect]="false" placeholder="Tipos"
+                    [ngModel]="selectedTipoNir()" (ngModelChange)="selectedTipoNir.set($event)">
                     <ng-template ng-option-tmp let-item="item" let-item$="item$">
                         <div class="bg-white flex items-center gap-2 cursor-pointer pl-3 py-1">
                             <input type="checkbox" [checked]="item$.selected"
@@ -115,11 +100,10 @@
                     </ng-template>
                 </ng-select>
 
-                <ng-select class="border rounded-xl px-4 py-2" [items]="dispositivosOrdenados()" bindLabel="numSerie"
-                    bindValue="numSerie" [multiple]="true" [searchable]="true" [closeOnSelect]="false"
-                    placeholder="Dispositivos" [ngModel]="selectedDispositivo()"
+                <ng-select class="border border-slate-200 rounded-xl px-4 py-2" [items]="dispositivosOrdenados()"
+                    bindLabel="numSerie" bindValue="numSerie" [multiple]="true" [searchable]="true"
+                    [closeOnSelect]="false" placeholder="Dispositivos" [ngModel]="selectedDispositivo()"
                     (ngModelChange)="selectedDispositivo.set($event)">
-
                     <ng-template ng-option-tmp let-item="item" let-item$="item$">
                         <div class="bg-white flex items-center gap-2 cursor-pointer pl-3 py-1">
                             <input type="checkbox" [checked]="item$.selected"
@@ -129,10 +113,10 @@
                     </ng-template>
                 </ng-select>
 
-                <ng-select class="border rounded-xl px-4 py-2" [items]="['PENDENTE','ANALISADO','CONFERIDO']"
-                    [multiple]="true" [searchable]="false" [closeOnSelect]="false" placeholder="Status"
-                    [ngModel]="selectedStatus()" (ngModelChange)="selectedStatus.set($event)">
-
+                <ng-select class="border border-slate-200 rounded-xl px-4 py-2"
+                    [items]="['PENDENTE','ANALISADO','CONFERIDO']" [multiple]="true" [searchable]="false"
+                    [closeOnSelect]="false" placeholder="Status" [ngModel]="selectedStatus()"
+                    (ngModelChange)="selectedStatus.set($event)">
                     <ng-template ng-option-tmp let-item="item" let-item$="item$">
                         <div class="bg-white flex items-center gap-2 cursor-pointer pl-3 py-1">
                             <input type="checkbox" [checked]="item$.selected"
@@ -143,36 +127,32 @@
                 </ng-select>
 
                 <button (click)="loadAnalyses()"
-                    class="bg-slate-900 hover:bg-slate-800 text-white rounded-xl px-4 py-2 transition-all">
+                    class="bg-slate-600 hover:bg-slate-700 text-white rounded-xl px-4 py-2 transition-all font-medium">
                     Buscar
                 </button>
             </div>
         </div>
 
         @if (loading()) {
-
         <div class="text-center py-20">
-            <p class="text-slate-500">
-                Carregando análises...
-            </p>
+            <p class="text-slate-500">Carregando análises...</p>
         </div>
-
         } @else {
 
         <!-- MOBILE -->
-
         <div class="lg:hidden space-y-4">
             @for (analysis of filteredAnalyses(); track analysis.uuid) {
-
-            <div class="rounded-2xl border p-4 shadow-sm relative flex-col" [ngClass]="getRowClasses(analysis)">
+            <div class="rounded-2xl border border-slate-200 p-4 shadow-sm relative flex-col bg-white border-l-4"
+                [ngClass]="getRowClasses(analysis)">
                 <div class="flex items-start justify-between gap-3 mb-4">
                     <button (click)="selectGroup(analysis.sampleGroup)"
-                        class="font-semibold text-slate-800 text-left px-3 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 transition">
+                        class="font-semibold text-slate-800 text-left px-3 py-1 rounded-lg hover:bg-slate-100 transition">
                         {{ analysis.nome }}
                     </button>
 
                     <div>
-                        <span class="text-xs px-2 py-1 rounded-full bg-white border">
+                        <span
+                            class="text-[10px] uppercase font-bold tracking-wider px-2 py-1 rounded-md bg-slate-100 text-slate-600 border border-slate-200">
                             {{ analysis.status }}
                         </span>
                         <div class="text-center mt-1">
@@ -182,354 +162,251 @@
                         </div>
                     </div>
 
-                    <div  class="w-9 h-9 rounded-lg border flex items-center justify-center transition"
+                    <div class="w-9 h-9 rounded-lg border flex items-center justify-center transition bg-slate-50"
                         [ngClass]="getSpectrumContainerClasses(analysis)" [title]="getSpectrumTitle(analysis)">
                         <lucide-icon [img]="ChartSpline" class="w-4 h-4"></lucide-icon>
                     </div>
-
-                    <!-- <div class="rounded-xl border p-3 min-w-[150px]" [ngClass]="getSpectrumContainerClasses(analysis)">
-                        <div class="flex items-center justify-between gap-2 mb-2">
-                            <span class="text-xs font-semibold uppercase">
-                                Espectro
-                            </span>
-
-                            <span class="text-xs font-bold">
-                                @if (analysis.spectrumScore !== null && analysis.spectrumScore !== undefined) {
-                                {{ analysis.spectrumScore }}
-                                } @else {
-                                -
-                                }
-                            </span>
-                        </div>
-
-                        <div class="h-2 w-full rounded-full bg-white/70 overflow-hidden">
-                            <div class="h-full rounded-full transition-all" [ngClass]="getSpectrumBarClasses(analysis)"
-                                [style.width]="getSpectrumScoreWidth(analysis)"></div>
-                        </div>
-
-                        <p class="text-[11px] mt-2 text-center font-medium">
-                            {{ getSpectrumStatusLabel(analysis.spectrumStatus) }}
-                        </p>
-                    </div> -->
                 </div>
 
-
-                <div class="grid grid-cols-2 gap-3 text-sm">
-
+                <div class="grid grid-cols-2 gap-4 text-sm mt-2">
                     <div>
-                        <p class="text-slate-400">
-                            Proteína
-                        </p>
-
-                        <p class="rounded-md px-2 py-1 inline-block" [ngClass]="getFieldClasses(analysis, 'proteina')">
+                        <p class="text-slate-400 text-xs mb-1">Proteína</p>
+                        <p class="rounded-md px-2 py-1 inline-block bg-slate-50 font-medium"
+                            [ngClass]="getFieldClasses(analysis, 'proteina')">
                             {{ analysis.proteina | number:'1.2-2' }}%
                         </p>
                     </div>
-
                     <div>
-                        <p class="text-slate-400">
-                            Umidade
-                        </p>
-
-                        <p class="rounded-md px-2 py-1 inline-block" [ngClass]="getFieldClasses(analysis, 'umidade')">
+                        <p class="text-slate-400 text-xs mb-1">Umidade</p>
+                        <p class="rounded-md px-2 py-1 inline-block bg-slate-50 font-medium"
+                            [ngClass]="getFieldClasses(analysis, 'umidade')">
                             {{ analysis.umidade | number:'1.2-2' }}%
                         </p>
                     </div>
-
                     <div>
-                        <p class="text-slate-400">
-                            Óleo
-                        </p>
-
-                        <p class="rounded-md px-2 py-1 inline-block" [ngClass]="getFieldClasses(analysis, 'oleo')">
+                        <p class="text-slate-400 text-xs mb-1">Óleo</p>
+                        <p class="rounded-md px-2 py-1 inline-block bg-slate-50 font-medium"
+                            [ngClass]="getFieldClasses(analysis, 'oleo')">
                             {{ analysis.oleo | number:'1.2-2' }}%
                         </p>
                     </div>
 
                     @if (analysis.grao === 'FARELO_SOJA') {
-
                     <div>
-                        <p class="text-slate-400">
-                            Cinzas
-                        </p>
-
-                        <p class="rounded-md px-2 py-1 inline-block" [ngClass]="getFieldClasses(analysis, 'cinzas')">
+                        <p class="text-slate-400 text-xs mb-1">Cinzas</p>
+                        <p class="rounded-md px-2 py-1 inline-block bg-slate-50 font-medium"
+                            [ngClass]="getFieldClasses(analysis, 'cinzas')">
                             {{ analysis.cinzas | number:'1.2-2' }}%
                         </p>
                     </div>
-
                     <div>
-                        <p class="text-slate-400">
-                            Fibra
-                        </p>
-
-                        <p class="rounded-md px-2 py-1 inline-block" [ngClass]="getFieldClasses(analysis, 'fibra')">
+                        <p class="text-slate-400 text-xs mb-1">Fibra</p>
+                        <p class="rounded-md px-2 py-1 inline-block bg-slate-50 font-medium"
+                            [ngClass]="getFieldClasses(analysis, 'fibra')">
                             {{ analysis.fibra | number:'1.2-2' }}%
                         </p>
                     </div>
-
                     <div>
-                        <p class="text-slate-400">
-                            Densidade
-                        </p>
-
-                        <p class="rounded-md px-2 py-1 inline-block" [ngClass]="getFieldClasses(analysis, 'densidade')">
+                        <p class="text-slate-400 text-xs mb-1">Densidade</p>
+                        <p class="rounded-md px-2 py-1 inline-block bg-slate-50 font-medium"
+                            [ngClass]="getFieldClasses(analysis, 'densidade')">
                             {{ analysis.densidade | number:'1.2-2' }}
                         </p>
                     </div>
-
                     }
 
-                    <div>
-                        <p class="text-slate-400">
-                            Operador
-                        </p>
-
-                        <p>
-                            {{ analysis.usuario }}
-                        </p>
-                    </div>
-
-                    <div>
-                        <p class="text-slate-400">
-                            Dispositivo
-                        </p>
-
-                        <p>
-                            {{ analysis.dispositivo }}
-                        </p>
+                    <div class="col-span-2 grid grid-cols-2 border-t border-slate-100 pt-3 mt-1">
+                        <div>
+                            <p class="text-slate-400 text-xs mb-1">Operador</p>
+                            <p class="text-slate-700 text-sm truncate pr-2" title="{{ analysis.usuario }}">{{
+                                analysis.usuario }}</p>
+                        </div>
+                        <div>
+                            <p class="text-slate-400 text-xs mb-1">Dispositivo</p>
+                            <p class="text-slate-700 text-sm">{{ analysis.dispositivo }}</p>
+                        </div>
                     </div>
                 </div>
 
                 @if (auth.isAdmin()) {
-
-                <div class="flex gap-2 mt-4">
+                <div class="flex gap-2 mt-5">
                     <button (click)="updateStatus(analysis, 'ANALISADO'); abrirAnalise(analysis.uuid, analysis.grao)"
-                        class="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm">
-                        Analisado
+                        class="flex-1 bg-slate-600 hover:bg-slate-700 text-white transition-colors rounded-lg py-2 text-sm font-medium">
+                        Analisar
                     </button>
-
                     <button (click)="updateStatus(analysis, 'CONFERIDO')"
-                        class="flex-1 bg-green-600 text-white rounded-lg py-2 text-sm">
-                        Conferido
+                        class="flex-1 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 transition-colors rounded-lg py-2 text-sm font-medium">
+                        Conferir
                     </button>
                     <button (click)="copyRetestMessage(analysis)"
-                        class="w-9 h-9 rounded-lg border border-slate-200 flex items-center justify-center hover:bg-slate-100 transition">
+                        class="w-10 h-10 rounded-lg border border-slate-300 flex items-center justify-center hover:bg-slate-100 transition-colors">
                         @if (copiedAnalysis() === analysis.uuid) {
-
-                        <lucide-icon [img]="Check" class="w-4 h-4 text-green-600"></lucide-icon>
-
+                        <lucide-icon [img]="Check" class="w-4 h-4 text-emerald-600"></lucide-icon>
                         } @else {
-
                         <lucide-icon [img]="Clipboard" class="w-4 h-4 text-slate-500"></lucide-icon>
-
                         }
                     </button>
                 </div>
-
                 }
             </div>
-
             }
+
             <div class="flex items-center justify-center gap-4 mt-6">
-                <button (click)="previousPage()" class="px-4 py-2 rounded-xl border bg-white">
+                <button (click)="previousPage()"
+                    class="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition-colors">
                     Anterior
                 </button>
-
-                <span class="text-sm text-slate-600">
-                    Página {{ currentPage() + 1 }}
-                    de {{ totalPages() }}
+                <span class="text-sm text-slate-500 font-medium">
+                    Página {{ currentPage() + 1 }} de {{ totalPages() }}
                 </span>
-
-                <button (click)="nextPage()" class="px-4 py-2 rounded-xl border bg-white">
+                <button (click)="nextPage()"
+                    class="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition-colors">
                     Próxima
                 </button>
             </div>
         </div>
 
-        <div class="hidden lg:block bg-white rounded-2xl overflow-hidden shadow-sm max-h-[95vh] overflow-y-auto">
-            <table class="w-full text-sm">
-                <thead class="bg-slate-100 sticky top-0 z-20 shadow-sm">
+        <!-- DESKTOP -->
+        <div
+            class="hidden lg:block bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-200 max-h-[95vh] overflow-y-auto">
+            <table class="w-full text-sm text-slate-700">
+                <thead class="bg-slate-50 text-slate-500 sticky top-0 z-20 shadow-sm border-b border-slate-200">
                     <tr>
-                        <th class="text-left p-4">
-                            Nome
-                        </th>
-
-                        <th class="text-left p-4">
-                            Prot.
-                        </th>
-
-                        <th class="text-left p-4">
-                            Umid.
-                        </th>
-
-                        <th class="text-left p-4">
-                            Óleo
-                        </th>
-
-                        <th class="text-left p-4">
-                            Cinzas
-                        </th>
-
-                        <th class="text-left p-4">
-                            Fibra
-                        </th>
-
-                        <th class="text-left p-4">
-                            Dens.
-                        </th>
-
-                        <th class="text-left p-4">
-                            Operador
-                        </th>
-
-                        <th class="text-center p-4">
-                            Status
-                        </th>
-
-                        <th class="text-center p-4">
-                            Espectro
-                        </th>
-
-                        <th class="text-left p-4">
-                            Ações
-                        </th>
+                        <th class="text-left p-4 font-semibold">Nome</th>
+                        <th class="text-left p-4 font-semibold">Prot.</th>
+                        <th class="text-left p-4 font-semibold">Umid.</th>
+                        <th class="text-left p-4 font-semibold">Óleo</th>
+                        <th class="text-left p-4 font-semibold">Cinzas</th>
+                        <th class="text-left p-4 font-semibold">Fibra</th>
+                        <th class="text-left p-4 font-semibold">Dens.</th>
+                        <th class="text-left p-4 font-semibold">Operador</th>
+                        <th class="text-center p-4 font-semibold">Status</th>
+                        <th class="text-center p-4 font-semibold">Espectro</th>
+                        <th class="text-left p-4 font-semibold">Ações</th>
                     </tr>
                 </thead>
 
                 <tbody>
                     @for (analysis of filteredAnalyses(); track analysis.uuid) {
-
-                    <tr class="border-t" [ngClass]="getRowClasses(analysis)">
+                    <!-- Zebra Striping aplicado aqui: even:bg-slate-50 odd:bg-white -->
+                    <tr class="border-b border-slate-100 border-l-4 even:bg-slate-50 odd:bg-white hover:bg-slate-100/50 transition-colors"
+                        [ngClass]="getRowClasses(analysis)">
                         <td class="p-4">
                             <button (click)="selectGroup(analysis.sampleGroup)"
-                                class="px-3 py-1 rounded-lg bg-white/70 hover:bg-white font-medium">
+                                class="px-2 py-1 rounded-lg hover:bg-slate-200/50 font-medium text-slate-800 transition-colors">
                                 {{ analysis.nome }}
                             </button>
                         </td>
-
                         <td class="p-4">
-                            <span class="px-2 py-1 rounded-md" [ngClass]="getFieldClasses(analysis, 'proteina')">
+                            <span class="px-2 py-1 rounded-md font-medium"
+                                [ngClass]="getFieldClasses(analysis, 'proteina')">
                                 {{ analysis.proteina | number:'1.2-2' }}
                             </span>
                         </td>
-
                         <td class="p-4">
-                            <span class="px-2 py-1 rounded-md" [ngClass]="getFieldClasses(analysis, 'umidade')">
+                            <span class="px-2 py-1 rounded-md font-medium"
+                                [ngClass]="getFieldClasses(analysis, 'umidade')">
                                 {{ analysis.umidade | number:'1.2-2' }}
                             </span>
                         </td>
-
                         <td class="p-4">
-                            <span class="px-2 py-1 rounded-md" [ngClass]="getFieldClasses(analysis, 'oleo')">
+                            <span class="px-2 py-1 rounded-md font-medium"
+                                [ngClass]="getFieldClasses(analysis, 'oleo')">
                                 {{ analysis.oleo | number:'1.2-2' }}
                             </span>
                         </td>
-
                         <td class="p-4">
-                            <span class="px-2 py-1 rounded-md" [ngClass]="getFieldClasses(analysis, 'cinzas')">
+                            <span class="px-2 py-1 rounded-md font-medium"
+                                [ngClass]="getFieldClasses(analysis, 'cinzas')">
                                 {{ analysis.cinzas === 0 ? '-' : analysis.cinzas | number:'1.2-2' }}
                             </span>
                         </td>
-
                         <td class="p-4">
-                            <span class="px-2 py-1 rounded-md" [ngClass]="getFieldClasses(analysis, 'fibra')">
+                            <span class="px-2 py-1 rounded-md font-medium"
+                                [ngClass]="getFieldClasses(analysis, 'fibra')">
                                 {{ analysis.fibra === 0 ? '-' : analysis.fibra | number:'1.2-2' }}
                             </span>
                         </td>
-
                         <td class="p-4">
-                            <span class="px-2 py-1 rounded-md" [ngClass]="getFieldClasses(analysis, 'densidade')">
+                            <span class="px-2 py-1 rounded-md font-medium"
+                                [ngClass]="getFieldClasses(analysis, 'densidade')">
                                 {{ analysis.densidade === 0 ? '-' : analysis.densidade | number:'1.2-2' }}
                             </span>
                         </td>
-
-                        <td class="p-4">
+                        <td class="p-4 text-slate-600 truncate max-w-[150px]" title="{{ analysis.usuario }}">
                             {{ analysis.usuario }}
                         </td>
-
                         <td class="p-4">
                             <div class="flex flex-col items-center">
-                                <span class="px-2 py-1 rounded-full text-xs bg-white border">
+                                <span
+                                    class="px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200">
                                     {{ analysis.status }}
                                 </span>
                                 <span class="text-[11px] text-slate-400 mt-1 whitespace-nowrap">
                                     {{ analysis.dataHora | date:'dd/MM/yyyy HH:mm' }}
                                 </span>
                             </div>
-
                         </td>
                         <td class="p-4">
                             <div class="rounded-lg border px-3 py-2 w-24"
                                 [ngClass]="getSpectrumContainerClasses(analysis)">
-                                <div class="flex justify-between text-xs mb-1">
-                                    <span class="font-semibold">
-                                        Espectro
-                                    </span>
-
+                                <div class="flex justify-between text-[11px] mb-1">
+                                    <span class="font-semibold">Espectro</span>
                                     <span class="font-bold">
                                         @if (analysis.spectrumScore !== null && analysis.spectrumScore !== undefined) {
                                         {{ analysis.spectrumScore }}
-                                        } @else {
-                                        -
-                                        }
+                                        } @else { - }
                                     </span>
                                 </div>
 
-                                <div class="h-1.5 w-full rounded-full bg-white/70 overflow-hidden">
+                                <!-- Fundo da barra neutro (preto com 5% de opacidade) para combinar com qualquer cor de card -->
+                                <div class="h-1.5 w-full rounded-full bg-black/5 overflow-hidden">
                                     <div class="h-full rounded-full" [ngClass]="getSpectrumBarClasses(analysis)"
                                         [style.width]="getSpectrumScoreWidth(analysis)"></div>
                                 </div>
 
-                                <p class="text-[10px] mt-1 text-center">
+                                <p class="text-[10px] mt-1 text-center font-medium ">
                                     {{ getSpectrumStatusLabel(analysis.spectrumStatus) }}
                                 </p>
                             </div>
                         </td>
                         <td class="p-4">
                             @if (auth.isAdmin()) {
-
                             <div class="flex gap-2">
-                                <button (click)="updateStatus(analysis, 'ANALISADO'); abrirAnalise(analysis.uuid, analysis.grao)"
-                                    class="bg-blue-600 text-white px-3 py-1 rounded-lg text-xs">
+                                <button
+                                    (click)="updateStatus(analysis, 'ANALISADO'); abrirAnalise(analysis.uuid, analysis.grao)"
+                                    class="bg-slate-600 hover:bg-slate-700 text-white transition-colors px-3 py-1.5 rounded-lg text-xs font-medium">
                                     Analisar
                                 </button>
-
                                 <button (click)="updateStatus(analysis, 'CONFERIDO')"
-                                    class="bg-green-600 text-white px-3 py-1 rounded-lg text-xs">
+                                    class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 transition-colors px-3 py-1.5 rounded-lg text-xs font-medium">
                                     Conferir
                                 </button>
                                 <button (click)="copyRetestMessage(analysis)"
-                                    class="w-9 h-9 rounded-lg border border-slate-200 flex items-center justify-center hover:bg-slate-100 transition">
+                                    class="w-8 h-8 rounded-lg border border-slate-300 flex items-center justify-center hover:bg-slate-100 transition-colors">
                                     @if (copiedAnalysis() === analysis.uuid) {
-
-                                    <lucide-icon [img]="Check" class="w-4 h-4 text-green-600" />
-
+                                    <lucide-icon [img]="Check" class="w-3.5 h-3.5 text-emerald-600" />
                                     } @else {
-
-                                    <lucide-icon [img]="Clipboard" class="w-4 h-4 text-slate-500" />
-
+                                    <lucide-icon [img]="Clipboard" class="w-3.5 h-3.5 text-slate-500" />
                                     }
                                 </button>
                             </div>
                             }
                         </td>
                     </tr>
-
                     }
                 </tbody>
             </table>
-            <div class="flex items-center justify-center gap-4 mt-6 w-screen">
-                <button (click)="previousPage()" class="px-4 py-2 rounded-xl border bg-white">
+            <div class="flex items-center justify-center gap-4 py-4 bg-white border-t border-slate-100">
+                <button (click)="previousPage()"
+                    class="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition-colors text-sm">
                     Anterior
                 </button>
-
-                <span class="text-sm text-slate-600">
-                    Página {{ currentPage() + 1 }}
-                    de {{ totalPages() }}
+                <span class="text-sm text-slate-500 font-medium">
+                    Página {{ currentPage() + 1 }} de {{ totalPages() }}
                 </span>
-
-                <button (click)="nextPage()" class="px-4 py-2 rounded-xl border bg-white ">
+                <button (click)="nextPage()"
+                    class="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition-colors text-sm">
                     Próxima
                 </button>
             </div>
