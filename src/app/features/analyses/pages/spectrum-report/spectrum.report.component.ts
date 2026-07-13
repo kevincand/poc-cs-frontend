@@ -10,6 +10,10 @@ import { CommonModule } from '@angular/common';
 
 import { ApiService } from '@/app/core/services/api.service';
 
+import { AuthService } from '@/app/core/services/auth.service';
+
+import { Router } from '@angular/router';
+
 type SpectrumReportItem = {
   uuid: string;
   amostra: string;
@@ -62,6 +66,12 @@ export class SpectrumReportComponent
 
   loading = signal(false);
 
+  error = '';
+  
+  auth = inject(AuthService);
+  
+  router = inject(Router)
+
   private intervalId?: number;
 
   ngOnInit() {
@@ -96,6 +106,20 @@ export class SpectrumReportComponent
         complete: () => {
           this.loading.set(false);
         },
+        error: (res) => {
+            if(res.status === 403 || res.status === 401) {
+              this.error = 'Sessão encerrada. Faça login novamente.';
+              this.loading.set(false);
+              console.error(this.error)
+              this.auth.logout();
+              this.router.navigate(['/login']);
+            } else {
+              this.error =
+                'Erro ao carregar relatório. Tente novamente.';
+                console.error(this.error)
+              this.loading.set(false);
+            }
+          },
       });
   }
 

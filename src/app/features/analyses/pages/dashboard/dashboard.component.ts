@@ -332,7 +332,11 @@ selectedStatus = signal<string[]>([]);
     this.api.getFilterData().subscribe({
       next: (response: any) => {
         this.filterData.set(response);
+        
       },
+      error: (err) => {
+        console.error('Erro ao buscar dados do espectro:', err);
+      }
     });
   }
 
