@@ -335,8 +335,15 @@ selectedStatus = signal<string[]>([]);
         
       },
       error: (err) => {
-        console.error('Erro ao buscar dados do espectro:', err);
-      }
+        if(err.status === 401) {
+            this.error = 'Sessão encerrada. Faça login novamente.';
+            this.loading.set(false);
+            this.logout();
+          }
+          else{
+            console.error('Erro ao buscar dados do espectro:', err);
+          }
+        }
     });
   }
 
