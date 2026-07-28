@@ -82,7 +82,7 @@ export class DashboardComponent {
   Clipboard = Clipboard;
 
   Check = Check;
-  
+
   ChartSpline = ChartSpline;
 
   dialog = inject(MatDialog);
@@ -101,15 +101,144 @@ export class DashboardComponent {
       ).length,
   );
 
+  private readonly LETTER_MAP: Record<string, string> = {
+  '0': 'O',
+  '1': 'I',
+  '2': 'Z',
+  '3': 'E',
+  '5': 'S',
+  '6': 'G',
+  '8': 'B',
+};
+
+private readonly NUMBER_MAP: Record<string, string> = {
+  'O': '0',
+  'I': '1',
+  'Z': '2',
+  'E': '3',
+  'S': '5',
+  'G': '6',
+  'B': '8',
+};
+
+  private normalizeText(name: string): string {
+    return name
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toUpperCase()
+
+      // Remove # do início
+      .replace(/^#\s*/, '')
+
+      // Remove REP, REP2, REP3...
+      .replace(/\s+REP\d*$/i, '')
+
+      // Remove (2), (3)...
+      .replace(/\s*\(\d+\)\s*$/, '')
+
+      // Remove data/hora
+      .replace(/\d{2}\/\d{2}\/\d{4}.*/, '')
+
+      // Remove marcador
+      .replace(/•.*/, '')
+
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  private normalizePlate(plate: string): string {
+
+  plate = plate
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, '');
+
+  if (plate.length !== 7)
+    return plate;
+
+  // Detecta automaticamente o padrão
+  const mercosul =
+    /^[A-Z0-9]{3}[A-Z0-9][A-Z0-9][A-Z0-9]{2}$/.test(plate);
+
+  const oldPlate =
+    /^[A-Z0-9]{7}$/.test(plate);
+
+  let pattern: boolean[];
+
+  if (mercosul) {
+    // L L L N L N N
+    pattern = [true, true, true, false, true, false, false];
+  } else if (oldPlate) {
+    // L L L N N N N
+    pattern = [true, true, true, false, false, false, false];
+  } else {
+    return plate;
+  }
+
+  return plate
+    .split('')
+    .map((char, index) => {
+
+      if (pattern[index]) {
+        return this.LETTER_MAP[char] ?? char;
+      }
+
+      return this.NUMBER_MAP[char] ?? char;
+
+    })
+    .join('');
+}
+
+  private extractPlate(name: string): string | null {
+
+    const text = this.normalizeText(name);
+
+    const parts = text.split('-');
+
+    if (parts.length < 2)
+      return null;
+
+    const candidate = parts[1]
+      .trim()
+      .split(/\s+/)[0];
+
+    if (candidate.length !== 7)
+      return null;
+
+    const letters = (candidate.match(/[A-Z]/g) ?? []).length;
+    const digits = (candidate.match(/[0-9]/g) ?? []).length;
+
+    if (letters < 2 || digits < 2)
+      return null;
+
+    return this.normalizePlate(candidate);
+  }
+
+  private buildSampleKey(name: string): string {
+
+    const normalized = this.normalizeText(name);
+
+    const plate = this.extractPlate(normalized);
+
+    if (plate) {
+      return plate;
+    }
+
+    return normalized.replace(/[^A-Z0-9]/g, '');
+  }
+
   filteredAnalyses = computed(() => {
     let data = this.analyses();
 
     if (this.selectedGroup()) {
-      data = data.filter(
-        (a) =>
-          a.sampleGroup ===
-          this.selectedGroup(),
+
+      const selectedKey = this.buildSampleKey(
+        this.selectedGroup()!,
       );
+
+      data = data.filter(item =>
+        this.buildSampleKey(item.sampleGroup) === selectedKey,
+      );
+
     }
 
     if (this.selectedStatus().join(',') !== '') {
@@ -132,44 +261,44 @@ export class DashboardComponent {
     return analysis.invalidFields?.includes(
       field,
     );
-  }    
+  }
 
   empresasOrdenadas = computed(() =>
-  [...(this.filterData()?.empresaSet || [])]
-    .sort((a, b) =>
-      a.nomeFantasia.localeCompare(
-        b.nomeFantasia,
+    [...(this.filterData()?.empresaSet || [])]
+      .sort((a, b) =>
+        a.nomeFantasia.localeCompare(
+          b.nomeFantasia,
+        ),
+      ),
+  );
+
+  usuariosOrdenados = computed(() =>
+    [...(this.filterData()?.usuarioSet || [])]
+      .sort((a, b) =>
+        a.nome.localeCompare(b.nome),
+      ),
+  );
+
+  graosOrdenados = computed(() =>
+    [...(this.filterData()?.graoSet || [])]
+      .sort(),
+  );
+
+  tiposOrdenados = computed(() =>
+    [...(this.filterData()?.tipoNirSet || [])]
+      .sort(),
+  );
+
+  dispositivosOrdenados = computed(() =>
+    [...(
+      this.filterData()
+        ?.dispositivoNirSet || []
+    )].sort((a, b) =>
+      a.numSerie.localeCompare(
+        b.numSerie,
       ),
     ),
-);
-
-usuariosOrdenados = computed(() =>
-  [...(this.filterData()?.usuarioSet || [])]
-    .sort((a, b) =>
-      a.nome.localeCompare(b.nome),
-    ),
-);
-
-graosOrdenados = computed(() =>
-  [...(this.filterData()?.graoSet || [])]
-    .sort(),
-);
-
-tiposOrdenados = computed(() =>
-  [...(this.filterData()?.tipoNirSet || [])]
-    .sort(),
-);
-
-dispositivosOrdenados = computed(() =>
-  [...(
-    this.filterData()
-      ?.dispositivoNirSet || []
-  )].sort((a, b) =>
-    a.numSerie.localeCompare(
-      b.numSerie,
-    ),
-  ),
-);
+  );
 
   getRowClasses(analysis: Analysis) {
     return {
@@ -312,15 +441,15 @@ dispositivosOrdenados = computed(() =>
 
   selectedEmpresa = signal<string[]>([]);
 
-selectedUsuario = signal<string[]>([]);
+  selectedUsuario = signal<string[]>([]);
 
-selectedGrao = signal<string[]>([]);
+  selectedGrao = signal<string[]>([]);
 
-selectedTipoNir = signal<string[]>([]);
+  selectedTipoNir = signal<string[]>([]);
 
-selectedDispositivo = signal<string[]>([]);
+  selectedDispositivo = signal<string[]>([]);
 
-selectedStatus = signal<string[]>([]);
+  selectedStatus = signal<string[]>([]);
 
   ngOnInit() {
     this.loadFilters();
@@ -332,22 +461,22 @@ selectedStatus = signal<string[]>([]);
     this.api.getFilterData().subscribe({
       next: (response: any) => {
         this.filterData.set(response);
-        
+
       },
       error: (err) => {
-        if(err.status === 401) {
-            this.error = 'Sessão encerrada. Faça login novamente.';
-            this.loading.set(false);
-            this.logout();
-          }
-          else{
-            console.error('Erro ao buscar dados do espectro:', err);
-          }
+        if (err.status === 401) {
+          this.error = 'Sessão encerrada. Faça login novamente.';
+          this.loading.set(false);
+          this.logout();
         }
+        else {
+          console.error('Erro ao buscar dados do espectro:', err);
+        }
+      }
     });
   }
 
-  updateSpectrum( uuid: string, spectrumScore: number, spectrumStatus: string,) {
+  updateSpectrum(uuid: string, spectrumScore: number, spectrumStatus: string,) {
     this.api
       .updateSpectrumQuality(
         uuid,
@@ -371,11 +500,11 @@ selectedStatus = signal<string[]>([]);
   abrirAnalise(uuid: string, grao: string): void {
     this.api.getSpectrum(uuid).subscribe({
       next: (respostaDoBack) => {
-        const dataSpectrum = grao === 'SOJA' ? 
-          analyzeSoybeanSpectrumData(respostaDoBack as SpectralApiResponse) 
+        const dataSpectrum = grao === 'SOJA' ?
+          analyzeSoybeanSpectrumData(respostaDoBack as SpectralApiResponse)
           : analyzeSpectrumData(respostaDoBack as SpectralApiResponse);
         console.log(dataSpectrum);
-  
+
         this.dialog.open(SpectrumModalComponent, {
           width: '800px',
           maxWidth: '90vw',
@@ -384,7 +513,7 @@ selectedStatus = signal<string[]>([]);
             spectrumAnalysis: dataSpectrum
           } // Passa o JSON recebido diretamente para o modal
         });
-        this.updateSpectrum( uuid, dataSpectrum.score, dataSpectrum.status);
+        this.updateSpectrum(uuid, dataSpectrum.score, dataSpectrum.status);
       },
       error: (err) => {
         console.error('Erro ao buscar dados do espectro:', err);
@@ -433,7 +562,7 @@ selectedStatus = signal<string[]>([]);
           );
         },
         error: (res) => {
-          if(res.status === 401) {
+          if (res.status === 401) {
             this.error = 'Sessão encerrada. Faça login novamente.';
             this.loading.set(false);
             this.logout();
@@ -508,115 +637,115 @@ selectedStatus = signal<string[]>([]);
   }
 
   getSpectrumStatusLabel(
-  status?: string | null,
-) {
-  switch (status) {
-    case 'OK':
-      return 'OK';
+    status?: string | null,
+  ) {
+    switch (status) {
+      case 'OK':
+        return 'OK';
 
-    case 'WARNING':
-      return 'Atenção';
+      case 'WARNING':
+        return 'Atenção';
 
-    case 'MOTOR_STOPPED':
-      return 'Motor parado';
+      case 'MOTOR_STOPPED':
+        return 'Motor parado';
 
-    case 'BAD_SPECTRUM':
-      return 'Espectro ruim';
+      case 'BAD_SPECTRUM':
+        return 'Espectro ruim';
 
-    default:
-      return 'Não analisado';
-  }
-}
-
-getSpectrumContainerClasses(
-  analysis: Analysis,
-) {
-  switch (analysis.spectrumStatus) {
-    case 'OK':
-      return 'border-emerald-200 bg-emerald-50 text-green-600';
-
-    case 'WARNING':
-      return 'border-amber-200 bg-amber-50 text-yellow-600';
-
-    case 'MOTOR_STOPPED':
-      return 'bg-orange-50 border-orange-300 text-orange-700';
-
-    case 'BAD_SPECTRUM':
-      return 'bg-red-50 border-red-300 text-red-700';
-
-    default:
-      return 'bg-slate-50 border-slate-300 text-slate-400';
-  }
-}
-
-getSpectrumTitle(
-  analysis: Analysis,
-) {
-  const scoreText =
-    analysis.spectrumScore !== null &&
-    analysis.spectrumScore !== undefined
-      ? `Score: ${analysis.spectrumScore}`
-      : 'Score não calculado';
-
-  switch (analysis.spectrumStatus) {
-    case 'OK':
-      return `Espectro OK - ${scoreText}`;
-
-    case 'WARNING':
-      return `Espectro com alerta - ${scoreText}`;
-
-    case 'MOTOR_STOPPED':
-      return `Motor parado - ${scoreText}`;
-
-    case 'BAD_SPECTRUM':
-      return `Espectro ruim - ${scoreText}`;
-
-    default:
-      return 'Espectro não analisado';
-  }
-}
-
-getSpectrumBarClasses(
-  analysis: Analysis,
-) {
-  switch (analysis.spectrumStatus) {
-    case 'OK':
-      return 'bg-green-500';
-
-    case 'WARNING':
-      return 'bg-yellow-500';
-
-    case 'MOTOR_STOPPED':
-      return 'bg-orange-500';
-
-    case 'BAD_SPECTRUM':
-      return 'bg-red-500';
-
-    default:
-      return 'bg-slate-300';
-  }
-}
-
-getSpectrumScore(
-  analysis: Analysis,
-) {
-  return analysis.spectrumScore ?? 0;
-}
-
-getSpectrumScoreWidth(
-  analysis: Analysis,
-) {
-  const score =
-    analysis.spectrumScore ?? 0;
-
-  if (score < 0) {
-    return '0%';
+      default:
+        return 'Não analisado';
+    }
   }
 
-  if (score > 100) {
-    return '100%';
+  getSpectrumContainerClasses(
+    analysis: Analysis,
+  ) {
+    switch (analysis.spectrumStatus) {
+      case 'OK':
+        return 'border-emerald-200 bg-emerald-50 text-green-600';
+
+      case 'WARNING':
+        return 'border-amber-200 bg-amber-50 text-yellow-600';
+
+      case 'MOTOR_STOPPED':
+        return 'bg-orange-50 border-orange-300 text-orange-700';
+
+      case 'BAD_SPECTRUM':
+        return 'bg-red-50 border-red-300 text-red-700';
+
+      default:
+        return 'bg-slate-50 border-slate-300 text-slate-400';
+    }
   }
 
-  return `${score}%`;
-}
+  getSpectrumTitle(
+    analysis: Analysis,
+  ) {
+    const scoreText =
+      analysis.spectrumScore !== null &&
+        analysis.spectrumScore !== undefined
+        ? `Score: ${analysis.spectrumScore}`
+        : 'Score não calculado';
+
+    switch (analysis.spectrumStatus) {
+      case 'OK':
+        return `Espectro OK - ${scoreText}`;
+
+      case 'WARNING':
+        return `Espectro com alerta - ${scoreText}`;
+
+      case 'MOTOR_STOPPED':
+        return `Motor parado - ${scoreText}`;
+
+      case 'BAD_SPECTRUM':
+        return `Espectro ruim - ${scoreText}`;
+
+      default:
+        return 'Espectro não analisado';
+    }
+  }
+
+  getSpectrumBarClasses(
+    analysis: Analysis,
+  ) {
+    switch (analysis.spectrumStatus) {
+      case 'OK':
+        return 'bg-green-500';
+
+      case 'WARNING':
+        return 'bg-yellow-500';
+
+      case 'MOTOR_STOPPED':
+        return 'bg-orange-500';
+
+      case 'BAD_SPECTRUM':
+        return 'bg-red-500';
+
+      default:
+        return 'bg-slate-300';
+    }
+  }
+
+  getSpectrumScore(
+    analysis: Analysis,
+  ) {
+    return analysis.spectrumScore ?? 0;
+  }
+
+  getSpectrumScoreWidth(
+    analysis: Analysis,
+  ) {
+    const score =
+      analysis.spectrumScore ?? 0;
+
+    if (score < 0) {
+      return '0%';
+    }
+
+    if (score > 100) {
+      return '100%';
+    }
+
+    return `${score}%`;
+  }
 }
