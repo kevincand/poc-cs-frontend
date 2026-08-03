@@ -257,6 +257,7 @@
           <thead>
             <tr class="border-b border-slate-200">
               <th class="p-4 text-left">Operador</th>
+              <th class="p-4 text-center">Tipo</th>
               <th class="p-4 text-right">Qtd.</th>
               <th class="p-4 text-right">Prot.</th>
               <th class="p-4 text-right">Umid.</th>
@@ -270,47 +271,62 @@
 
           <tbody>
             @for (op of report()?.operators || []; track op.operadorNome) {
+            @for (grain of getOperatorGrainRows(op); track grain?.grao ?? 'geral'; let first = $first, count = $count) {
             <tr class="border-b border-slate-100 hover:bg-slate-50">
-              <td class="p-4 font-semibold text-slate-800">
+              @if (first) {
+              <td class="p-4 font-semibold text-slate-800" [attr.rowspan]="count">
                 {{ op.operadorNome }}
               </td>
-
-              <td class="p-4 text-right">
-                {{ op.totalAnalyses }}
-              </td>
-
-              <td class="p-4 text-right">
-                {{ formatNumber(op.avgProteina) }}%
-              </td>
-
-              <td class="p-4 text-right">
-                {{ formatNumber(op.avgUmidade) }}%
-              </td>
-
-              <td class="p-4 text-right">
-                {{ formatNumber(op.avgOleo) }}%
-              </td>
+              }
 
               <td class="p-4 text-center">
+                @if (grain) {
+                <span class="inline-flex rounded-full border px-2 py-1 text-xs font-semibold"
+                  [ngClass]="getGraoClasses(grain.grao)">
+                  {{ getGraoLabel(grain.grao) }}
+                </span>
+                }
+              </td>
+
+              <td class="p-4 text-right">
+                {{ grain ? grain.totalAnalyses : op.totalAnalyses }}
+              </td>
+
+              <td class="p-4 text-right">
+                {{ formatNumber(grain ? grain.avgProteina : op.avgProteina) }}%
+              </td>
+
+              <td class="p-4 text-right">
+                {{ formatNumber(grain ? grain.avgUmidade : op.avgUmidade) }}%
+              </td>
+
+              <td class="p-4 text-right">
+                {{ formatNumber(grain ? grain.avgOleo : op.avgOleo) }}%
+              </td>
+
+              @if (first) {
+              <td class="p-4 text-center" [attr.rowspan]="count">
                 {{ op.spectrumWarningCount }}
               </td>
 
-              <td class="p-4 text-center">
+              <td class="p-4 text-center" [attr.rowspan]="count">
                 {{ op.spectrumBadCount }}
               </td>
 
-              <td class="p-4 text-center">
+              <td class="p-4 text-center" [attr.rowspan]="count">
                 {{ op.motorStoppedCount }}
               </td>
 
-              <td class="p-4 text-center">
+              <td class="p-4 text-center" [attr.rowspan]="count">
                 {{ op.repeatedSamplesCount }}
               </td>
+              }
             </tr>
+            }
 
             @if (op.insights?.length) {
             <tr class="bg-slate-50">
-              <td colspan="9" class="p-4">
+              <td colspan="10" class="p-4">
                 <div class="space-y-2">
                   @for (insight of op.insights; track insight) {
                   <p class="text-xs text-slate-600">
