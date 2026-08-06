@@ -216,4 +216,36 @@ export class DailyReportComponent
 
     return labels[status] || '-';
   }
+
+  getOperatorGrainRows(op: any): any[] {
+    return op.grainSummary?.length
+      ? op.grainSummary
+      : [null];
+  }
+
+  getGraoLabel(grao: string) {
+    const labels: Record<string, string> = {
+      SOJA: 'Soja',
+      MILHO: 'Milho',
+      FARELO_SOJA: 'Farelo de soja',
+    };
+
+    return labels[grao] || grao;
+  }
+
+  getGraoClasses(grao: string) {
+    switch (grao) {
+      /* case 'SOJA':
+        return 'bg-emerald-50 text-emerald-700 border-emerald-300';
+
+      case 'MILHO':
+        return 'bg-amber-50 text-amber-700 border-amber-300';
+
+      case 'FARELO_SOJA':
+        return 'bg-blue-50 text-blue-700 border-blue-300'; */
+
+      default:
+        return 'text-xs font-semibold text-slate-600';
+    }
+  }
 }
